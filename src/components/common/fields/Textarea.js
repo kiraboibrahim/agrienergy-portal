@@ -3,10 +3,12 @@ import {
   FormHelperText,
   FormLabel,
   Textarea as JoyTextarea,
+  Typography,
 } from "@mui/joy";
 import { useField } from "formik";
 
 export default function Textarea({ sx = [], name, label, ...props }) {
+  const { required } = props;
   const [field, { touched, error }] = useField({ name, ...props });
   const hasError = touched && !!error;
 
@@ -15,7 +17,14 @@ export default function Textarea({ sx = [], name, label, ...props }) {
       sx={[{ width: "100%" }, ...(Array.isArray(sx) ? sx : [sx])]}
       error={hasError}
     >
-      <FormLabel htmlFor={props.id || props.label}>{label}</FormLabel>
+      <FormLabel htmlFor={label || props.id}>
+        {label}
+        {!!required && (
+          <Typography color="danger" level="body-sm">
+            *
+          </Typography>
+        )}
+      </FormLabel>
       <JoyTextarea
         {...field}
         {...props}

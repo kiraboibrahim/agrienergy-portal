@@ -1,62 +1,75 @@
-import { Stack } from "@mui/joy";
 import TextInput from "../common/fields/TextInput";
 import FormWizard, { FormWizardStep } from "../common/forms/FormWizard";
 import FarmerSelect from "../common/fields/FarmerSelect";
 import Textarea from "../common/fields/Textarea";
 import LocalSelect from "../common/fields/LocalSelect";
+import {
+  GROUP_TYPES,
+  GroupDetailsSchema,
+  GroupMembersSchema,
+} from "../../validation-schemas/group/GroupProfileSchema";
+import useCreateGroup from "../../hooks/useCreateGroup";
+import AgroProcessorSelect from "../common/fields/AgroProcessorSelect";
 
 export default function CreateGroupForm() {
+  const [createGroup] = useCreateGroup();
+
   return (
     <FormWizard
-      steps={{ 1: "Group Details", 2: "Assign Admin", 3: "Add Members" }}
-      onSubmit={(values) => console.log(values)}
+      steps={{ 1: "Group Details", 2: "Add Members" }}
+      onSubmit={async (values) => await createGroup(values)}
     >
-      <FormWizardStep stepIndex={1}>
-        <TextInput name="name" label="Name" sx={{ marginBottom: 2 }} />
+      <FormWizardStep stepIndex={1} validationSchema={GroupDetailsSchema}>
+        <TextInput name="name" label="Name" required sx={{ marginBottom: 2 }} />
         <TextInput
           name="email"
           label="Email"
           type="email"
           sx={{ marginBottom: 2 }}
         />
-        <TextInput name="address" label="Address" sx={{ marginBottom: 2 }} />
+        <TextInput
+          name="phoneNumber"
+          label="Phone number"
+          required
+          sx={{ marginBottom: 2 }}
+        />
+        <TextInput
+          name="address"
+          label="Address"
+          required
+          sx={{ marginBottom: 2 }}
+        />
         <TextInput name="website" label="Website" sx={{ marginBottom: 2 }} />
         <LocalSelect
           label="What kind of group is this?"
           name="type"
-          defaultValue="SACCO"
-          options={["SACCO", "COOPERATIVE", "OTHER"]}
+          options={GROUP_TYPES}
           sx={{ marginBottom: 2 }}
+          required
         ></LocalSelect>
-        <Textarea name="description" label="Tell us more about this group" />
+        <Textarea
+          name="description"
+          label="Tell us more about this group"
+          required
+        />
       </FormWizardStep>
-
-      <FormWizardStep stepIndex={2}>
-        <Stack direction={{ sm: "column", md: "row" }} sx={{ marginBottom: 2 }}>
-          <TextInput
-            name="firstName"
-            label="First name"
-            sx={{ flex: "1 1 auto" }}
-          />
-          <TextInput
-            name="lastName"
-            label="Last name"
-            sx={{
-              marginTop: { sm: 1, md: 0 },
-              marginLeft: { sm: 0, md: 1 },
-              flex: "1 1 auto",
-            }}
-          />
-        </Stack>
-        <TextInput
-          name="phoneNumber"
-          label="Phone number"
+      <FormWizardStep
+        stepIndex={2}
+        validationSchema={GroupMembersSchema}
+        isOptional={true}
+      >
+        <FarmerSelect
+          name="farmers"
+          label="Select farmers"
+          placeholder="Search farmers"
           sx={{ marginBottom: 2 }}
         />
-        <TextInput name="address" label="Address" sx={{ marginBottom: 2 }} />
-      </FormWizardStep>
-      <FormWizardStep stepIndex={3}>
-        <FarmerSelect name="farmers" label="Select farmers" />
+
+        <AgroProcessorSelect
+          name="agroProcessors"
+          label="Select agro processors"
+          placeholders="Search agro processors"
+        />
       </FormWizardStep>
     </FormWizard>
   );

@@ -6,12 +6,14 @@ import Empty from "../common/utils/Empty";
 import Error from "../common/utils/Error";
 import { ProductItem } from "../ProductList/Product.List";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
+import { useGetGroupFavoriteProductsQuery } from "../../services/group";
+import { useGetAgroProcessorFavoritesQuery } from "../../services/agroProcessor";
 
 function InterestItem({ interest: { product } }) {
   return <ProductItem product={product} />;
 }
 
-export default function InterestList() {
+export function FarmerInterestList() {
   const { id: farmerId } = useParams();
   const [page, setPage] = useState(1);
   const {
@@ -19,6 +21,60 @@ export default function InterestList() {
     error,
     isFetching,
   } = useGetFarmerFavoriteProductsQuery({ farmerId, page });
+
+  return (
+    <InterestList
+      interests={interests}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+export function GroupInterestList() {
+  const { id: groupId } = useParams();
+  const [page, setPage] = useState(1);
+  const {
+    data: interests,
+    error,
+    isFetching,
+  } = useGetGroupFavoriteProductsQuery({ groupId, page });
+
+  return (
+    <InterestList
+      interests={interests}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+export function AgroProcessorInterestList() {
+  const { id: agroProcessorId } = useParams();
+  const [page, setPage] = useState(1);
+  const {
+    data: interests,
+    error,
+    isFetching,
+  } = useGetAgroProcessorFavoritesQuery({ agroProcessorId, page });
+
+  return (
+    <InterestList
+      interests={interests}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+function InterestList({
+  interests,
+  error = null,
+  isFetching = false,
+  onSelectPage = (page) => page,
+}) {
   if (isFetching) {
     return <Loading />;
   }
@@ -31,7 +87,7 @@ export default function InterestList() {
         data={interests}
         renderItem={(item) => <InterestItem interest={item} />}
         renderEmpty={() => <Empty>No interests found</Empty>}
-        onSelectPage={setPage}
+        onSelectPage={onSelectPage}
       />
     </>
   );

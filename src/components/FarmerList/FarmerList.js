@@ -24,6 +24,7 @@ import Error from "../common/utils/Error";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import toTitleCase from "../../utils/toTitleCase";
 import useDeleteFarmer from "../../hooks/useDeleteFarmer";
+import getFarmerFullName from "../../utils/getFarmerFullName";
 
 function FarmerItem({ farmer }) {
   const [deleteFarmer, isDeletingFarmer] = useDeleteFarmer();
@@ -35,51 +36,61 @@ function FarmerItem({ farmer }) {
       color={isDeletingFarmer ? "danger" : "neutral"}
     >
       <CardContent orientation="horizontal">
-        <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Box>
           <Avatar
             src={resolvePhotoSrc(farmer.profilePhoto)}
-            sx={{ marginRight: 1 }}
+            sx={{ marginRight: 0.5 }}
           >
-            {farmer.name}
+            {getFarmerFullName(farmer)}
           </Avatar>
+        </Box>
+        <Link
+          component={RouterLink}
+          to={`/farmers/${farmer.id}`}
+          overlay
+          underline="none"
+          color="neutral"
+          sx={{
+            display: "block",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            fontWeight: "bold",
+            alignSelf: "center",
+            marginRight: "auto",
+            maxWidth: 1,
+          }}
+          level="body-md"
+        >
+          {toTitleCase(getFarmerFullName(farmer))}
           <Typography
-            level="body-sm"
+            level="body-xs"
             sx={{
-              width: 120,
+              display: "block",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              fontWeight: "bold",
             }}
           >
-            <Link
-              component={RouterLink}
-              to={`/farmers/${farmer.id}`}
-              underline="none"
-              color="neutral"
-              overlay
-            >
-              {toTitleCase(`${farmer.firstName} ${farmer.lastName}`)}
-            </Link>
+            {toTitleCase(farmer.address)}
           </Typography>
-        </Box>
-        <Box sx={{ marginLeft: "auto" }}>
-          <Dropdown>
-            <MenuButton slots={{ root: IconButton }}>
-              <MoreVertIcon />
-            </MenuButton>
-            <Menu>
-              <MenuItem onClick={async () => await deleteFarmer(farmer.id)}>
-                <Typography
-                  level="body-sm"
-                  startDecorator={<DeleteOutlinedIcon />}
-                >
-                  Delete
-                </Typography>
-              </MenuItem>
-            </Menu>
-          </Dropdown>
-        </Box>
+        </Link>
+
+        <Dropdown>
+          <MenuButton slots={{ root: IconButton }}>
+            <MoreVertIcon />
+          </MenuButton>
+          <Menu>
+            <MenuItem onClick={async () => await deleteFarmer(farmer.id)}>
+              <Typography
+                level="body-sm"
+                startDecorator={<DeleteOutlinedIcon />}
+              >
+                Delete
+              </Typography>
+            </MenuItem>
+          </Menu>
+        </Dropdown>
       </CardContent>
       <AspectRatio>
         <img
@@ -88,16 +99,6 @@ function FarmerItem({ farmer }) {
           loading="lazy"
         />
       </AspectRatio>
-      <Typography
-        sx={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-        level="body-xs"
-      >
-        {farmer.farmDescription}
-      </Typography>
     </Card>
   );
 }
@@ -107,25 +108,22 @@ export default function FarmerList() {
   const [page, setPage] = useState(1);
   const {
     data: farmers,
-    error: farmersFetchError,
+    error: fetchError,
     isFetching,
   } = useGetFarmersQuery({ page, search: searchParams.get("search") });
 
   if (isFetching) {
     return <Loading />;
   }
-  if (!!farmersFetchError) {
-    return <Error error={farmersFetchError} />;
+  if (!!fetchError) {
+    return <Error error={fetchError} />;
   }
-
-  if (farmers?.data) {
-    return (
-      <PaginatedGridList
-        data={farmers}
-        renderItem={(item) => <FarmerItem farmer={item} />}
-        renderEmpty={() => <Empty>No farmers found</Empty>}
-        onSelectPage={setPage}
-      />
-    );
-  }
+  return (
+    <PaginatedGridList
+      data={farmers}
+      renderItem={(item) => <FarmerItem farmer={item} />}
+      renderEmpty={() => <Empty>No farmers found</Empty>}
+      onSelectPage={setPage}
+    />
+  );
 }

@@ -17,10 +17,7 @@ export const FarmerLocationSchema = Yup.object({
 
 export const FarmDetailsSchema = Yup.object({
   farmName: Yup.string().required("Farm name is required"),
-  farmEstablishedOn: Yup.date().max(
-    new Date(),
-    "Date of farm establishment should be a date in the past"
-  ),
+  farmEstablishedOn: Yup.date().required(),
   farmSize: Yup.string().required("Farm size is required"),
   farmDescription: Yup.string()
     .required("Farm description is required")

@@ -36,7 +36,7 @@ export function ProductItem({ product }) {
       <CardContent orientation="horizontal">
         <Avatar
           src={resolvePhotoSrc(product.esco.profilePhoto)}
-          sx={{ marginRight: 1 }}
+          sx={{ marginRight: 0.5 }}
         >
           {toTitleCase(product.esco.name)}
         </Avatar>
@@ -99,16 +99,6 @@ export function ProductItem({ product }) {
       >
         <Typography level="title-md">{toTitleCase(product.name)}</Typography>
       </Link>
-      <Typography
-        level="body-xs"
-        sx={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {product.description}
-      </Typography>
     </Card>
   );
 }

@@ -13,6 +13,9 @@ import Loading from "../common/utils/Loading";
 import Error from "../common/utils/Error";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import toTitleCase from "../../utils/toTitleCase";
+import getFarmerFullName from "../../utils/getFarmerFullName";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 
 export default function FarmerDetail() {
   const { id: farmerId } = useParams();
@@ -37,11 +40,11 @@ export default function FarmerDetail() {
             </Avatar>
             <Box>
               <Typography level="h3">
-                {toTitleCase(`${farmer.firstName} ${farmer.lastName}`)}
+                {toTitleCase(getFarmerFullName(farmer))}
               </Typography>
 
               <Box level="body-xs" sx={{ marginTop: 1 }}>
-                {farmer.cropsGrown.split(",").map((crop, index) => (
+                {farmer?.cropsGrown.split(",").map((crop, index) => (
                   <Chip
                     size="sm"
                     key={index}
@@ -52,9 +55,24 @@ export default function FarmerDetail() {
                   </Chip>
                 ))}
               </Box>
-              <Typography sx={{ marginTop: 1 }} level="body-sm">
-                {farmer.farmDescription}
-              </Typography>
+              <Stack
+                direction={{ xs: "column", md: "row" }}
+                spacing={1}
+                sx={{ marginTop: 1, overflow: "hidden" }}
+              >
+                <Typography
+                  level="body-xs"
+                  startDecorator={<LocationOnOutlinedIcon />}
+                >
+                  {farmer.address}
+                </Typography>
+                <Typography
+                  level="body-xs"
+                  startDecorator={<PhoneAndroidOutlinedIcon />}
+                >
+                  {farmer.phoneNumber}
+                </Typography>
+              </Stack>
             </Box>
           </CardContent>
         </Card>

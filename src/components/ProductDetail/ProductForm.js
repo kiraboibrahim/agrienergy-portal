@@ -4,7 +4,7 @@ import { Form } from "formik";
 import Textarea from "../common/fields/Textarea";
 import { toast } from "react-toastify";
 import RemoteSelect from "../common/fields/RemoteSelect";
-import ProductSchema from "../../validation-schemas/product/Product.schema";
+import ProductSchema from "../../validation-schemas/product/ProductSchema";
 import difference from "../../utils/difference";
 import isEmpty from "../../utils/isEmpty";
 import { useLazyGetProductsCategoriesQuery } from "../../services/productCategories";

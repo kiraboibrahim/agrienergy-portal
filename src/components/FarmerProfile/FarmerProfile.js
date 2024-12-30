@@ -6,7 +6,6 @@ import {
   ButtonGroup,
   Sheet,
   Stack,
-  Typography,
 } from "@mui/joy";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
@@ -27,6 +26,7 @@ import useDeleteFarmer from "../../hooks/useDeleteFarmer";
 import useUpdateFarmer from "../../hooks/useUpdateFarmer";
 import difference from "../../utils/difference";
 import FarmerProfileSchema from "../../validation-schemas/farmer/FarmerProfileSchema";
+import Error from "../common/utils/Error";
 
 export default function FarmerProfile() {
   const [isDirty, setIsDirty] = useState(false);
@@ -36,7 +36,7 @@ export default function FarmerProfile() {
   const [updateFarmer, isUpdatingFarmer] = useUpdateFarmer();
 
   if (!!error) {
-    return <Typography>{error}</Typography>;
+    return <Error error={error} />;
   }
   if (isFetching) {
     return <Loading />;
@@ -107,7 +107,6 @@ export default function FarmerProfile() {
           validationSchema={FarmerProfileSchema}
           onSubmit={async (values) => {
             const updatedValues = difference(farmer, values);
-            console.log("Updated Values: ", updatedValues);
             await updateFarmer(farmerId, updatedValues);
           }}
           onDirty={(isDirty) => setIsDirty(isDirty)}
@@ -152,7 +151,7 @@ export default function FarmerProfile() {
                   name="latitude"
                 />
                 <TextInput
-                  containerSx={{ flexGrow: 1 }}
+                  sx={{ flexGrow: 1 }}
                   label="Longitude"
                   name="longitude"
                 />

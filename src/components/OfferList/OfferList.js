@@ -14,13 +14,16 @@ import { Link as RouterLink } from "react-router-dom";
 import { useGetFarmerOffersQuery } from "../../services/farmer";
 import { useGetEscoOffersQuery } from "../../services/esco";
 import { useParams } from "react-router";
-import { toast } from "react-toastify";
 import Loading from "../common/utils/Loading";
 import Empty from "../common/utils/Empty";
 import { useState } from "react";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import toTitleCase from "../../utils/toTitleCase";
+import getFarmerFullName from "../../utils/getFarmerFullName";
+import Error from "../common/utils/Error";
+import { useGetGroupOffersQuery } from "../../services/group";
+import { useGetAgroProcessorOffersQuery } from "../../services/agroProcessor";
 
 function OfferItem({
   offer: { product, esco, farmer, isAccepted, expiryDate },
@@ -101,7 +104,7 @@ function OfferItem({
         <CardContent orientation="horizontal">
           <Avatar size="sm" src={resolvePhotoSrc(farmer.profilePhoto)}></Avatar>
           <Typography level="body-sm" sx={{ alignSelf: "center" }}>
-            {toTitleCase(`${farmer.firstName} ${farmer.lastName}`)}
+            {toTitleCase(getFarmerFullName(farmer))}
           </Typography>
           <IconButton
             sx={{ marginLeft: "auto" }}
@@ -124,15 +127,52 @@ export function FarmerOfferList() {
     isFetching,
     error,
   } = useGetFarmerOffersQuery({ farmerId, page });
-  if (isFetching) {
-    return <Loading />;
-  }
-  if (!!error) {
-    return toast.error(error?.message);
-  }
-  if (!!offers) {
-    return <OfferList offers={offers} onSelectPage={setPage} />;
-  }
+
+  return (
+    <OfferList
+      error={error}
+      isFetching={isFetching}
+      offers={offers}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+export function GroupOfferList() {
+  const { id: groupId } = useParams();
+  const [page, setPage] = useState(1);
+  const {
+    data: offers,
+    isFetching,
+    error,
+  } = useGetGroupOffersQuery({ groupId, page });
+
+  return (
+    <OfferList
+      error={error}
+      isFetching={isFetching}
+      offers={offers}
+      onSelectPage={setPage}
+    />
+  );
+}
+export function AgroProcessorOfferList() {
+  const { id: agroProcessorId } = useParams();
+  const [page, setPage] = useState(1);
+  const {
+    data: offers,
+    isFetching,
+    error,
+  } = useGetAgroProcessorOffersQuery({ agroProcessorId, page });
+
+  return (
+    <OfferList
+      error={error}
+      isFetching={isFetching}
+      offers={offers}
+      onSelectPage={setPage}
+    />
+  );
 }
 
 export function EscoOfferList() {
@@ -143,18 +183,29 @@ export function EscoOfferList() {
     isFetching,
     error,
   } = useGetEscoOffersQuery({ escoId, page });
+
+  return (
+    <OfferList
+      offers={offers}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+function OfferList({
+  offers,
+  error = null,
+  isFetching = false,
+  onSelectPage = (page) => page,
+}) {
   if (isFetching) {
     return <Loading />;
   }
   if (!!error) {
-    return toast.error(error?.message);
+    return <Error error={error} />;
   }
-  if (!!offers) {
-    return <OfferList offers={offers} onSelectPage={setPage} />;
-  }
-}
-
-function OfferList({ offers, onSelectPage }) {
   return (
     <PaginatedGridList
       data={offers}

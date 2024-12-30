@@ -4,6 +4,7 @@ import {
   FormLabel,
   Radio,
   RadioGroup,
+  Typography,
 } from "@mui/joy";
 import { useField, ErrorMessage } from "formik";
 
@@ -22,7 +23,14 @@ export default function RadioInput({
 
   return (
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel htmlFor={label || props.id}>
+        {label}
+        {!!props.required && (
+          <Typography level="body-sm" color="danger">
+            *
+          </Typography>
+        )}
+      </FormLabel>
       <RadioGroup
         {...props}
         name={name}

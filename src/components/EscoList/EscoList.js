@@ -16,15 +16,14 @@ import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useGetEscosQuery } from "../../services/esco";
-import Pagination from "../Pagination/Pagination";
 import { useState } from "react";
 import Loading from "../common/utils/Loading";
 import Error from "../common/utils/Error";
-import GridList from "../common/layouts/GridList";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import Empty from "../common/utils/Empty";
 import useDeleteEsco from "../../hooks/useDeleteEsco";
 import toTitleCase from "../../utils/toTitleCase";
+import PaginatedGridList from "../common/layouts/PaginatedGridList";
 
 function EscoItem({ esco }) {
   const [deleteEsco, isDeletingEsco] = useDeleteEsco();
@@ -39,7 +38,7 @@ function EscoItem({ esco }) {
         <Box>
           <Avatar
             src={resolvePhotoSrc(esco.profilePhoto)}
-            sx={{ marginRight: 1, flexGrow: 1 }}
+            sx={{ marginRight: 0.5 }}
           >
             {esco.name}
           </Avatar>
@@ -60,9 +59,20 @@ function EscoItem({ esco }) {
             marginRight: "auto",
             maxWidth: 1,
           }}
-          level="body-sm"
+          level="body-md"
         >
           {toTitleCase(esco.name)}
+          <Typography
+            level="body-xs"
+            sx={{
+              display: "block",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {esco.address}
+          </Typography>
         </Link>
         <Dropdown>
           <MenuButton slots={{ root: IconButton }}>
@@ -96,32 +106,24 @@ export default function EscoList() {
   const [page, setPage] = useState(1);
   const {
     data: escos,
-    error: escosFetchError,
-    isFetching: isEscosFetchPending,
+    error: fetchError,
+    isFetching,
   } = useGetEscosQuery({ page, search: searchParams.get("search") });
 
-  if (isEscosFetchPending) {
+  if (isFetching) {
     return <Loading />;
   }
 
-  if (escosFetchError) {
-    return <Error error={escosFetchError} />;
+  if (fetchError) {
+    return <Error error={fetchError} />;
   }
 
-  if (escos?.data) {
-    return (
-      <>
-        <GridList
-          items={escos.data}
-          renderItem={(item) => <EscoItem esco={item} />}
-          renderEmpty={() => <Empty>No escos found</Empty>}
-        />
-        <Pagination
-          pageCount={escos.meta.totalPages}
-          currentPage={escos.meta.currentPage}
-          onSelectPage={setPage}
-        ></Pagination>
-      </>
-    );
-  }
+  return (
+    <PaginatedGridList
+      data={escos}
+      renderItem={(item) => <EscoItem esco={item} />}
+      renderEmpty={() => <Empty>No escos found</Empty>}
+      onSelectPage={setPage}
+    />
+  );
 }

@@ -22,13 +22,20 @@ import toTitleCase from "../../utils/toTitleCase";
 import Error from "../../components/common/utils/Error";
 import useDeleteProduct from "../../hooks/useDeleteProduct";
 import ProductForm from "./ProductForm";
-import PromoteProductModal from "./PromoteProductModal";
-import useModal from "../../hooks/useModal";
+import PromoteProductModal, {
+  usePromoteProductModalContext,
+} from "./PromoteProductModal";
+import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
+import LearningMaterialsList from "../LearningMaterialList/LearningMaterialList";
+import CreateLearningMaterialModal, {
+  useLearningModalContext,
+} from "./CreateLearningMaterialModal";
 
 export default function ProductDetail() {
   const { id: productId } = useParams();
   const [currentPhoto, setCurrentPhoto] = useState(null);
-  const [isPromoteModalOpen, openPromoteModal, closePromoteModal] = useModal();
+  const [, openPromoteModal] = usePromoteProductModalContext();
+  const [, openLearningModal] = useLearningModalContext();
   const [deleteProduct, isDeletingProduct] = useDeleteProduct();
   const {
     data: product,
@@ -119,11 +126,18 @@ export default function ProductDetail() {
             >
               Promote
             </Button>
+            <Button
+              startDecorator={<SchoolOutlinedIcon />}
+              onClick={() => openLearningModal()}
+            >
+              Upload
+            </Button>
           </ButtonGroup>
 
           <Typography level="h4" sx={{ marginTop: 3 }}>
             {toTitleCase(product.name)}
           </Typography>
+
           <Typography sx={{ marginTop: 2 }} level="body-md">
             Sold by
           </Typography>
@@ -145,13 +159,14 @@ export default function ProductDetail() {
               </IconButton>
             </CardContent>
           </Card>
+          <Typography level="body-md" sx={{ marginTop: 3, marginBottom: 1 }}>
+            Learning Materials
+          </Typography>
+          <LearningMaterialsList productId={productId} />
           <ProductForm product={product} />
         </Box>
-        <PromoteProductModal
-          product={product}
-          isOpen={isPromoteModalOpen}
-          onClose={closePromoteModal}
-        />
+        <PromoteProductModal product={product} />
+        <CreateLearningMaterialModal product={product} />
       </Box>
     );
   }

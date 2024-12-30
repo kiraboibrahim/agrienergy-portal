@@ -1,7 +1,14 @@
-import { FormControl, FormHelperText, FormLabel, Input } from "@mui/joy";
+import {
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Input,
+  Typography,
+} from "@mui/joy";
 import { useField } from "formik";
 
 export default function TextInput({ name, label, sx = [], ...props }) {
+  const { required } = props;
   const [field, { touched, error }] = useField({ name, ...props });
   const hasError = touched && !!error;
   return (
@@ -9,7 +16,14 @@ export default function TextInput({ name, label, sx = [], ...props }) {
       error={hasError}
       sx={[{ width: "100%" }, ...(Array.isArray(sx) ? sx : [sx])]}
     >
-      <FormLabel htmlFor={props.id || props.label}>{label}</FormLabel>
+      <FormLabel htmlFor={label || props.id}>
+        {label}
+        {!!required && (
+          <Typography color="danger" level="body-sm">
+            *
+          </Typography>
+        )}
+      </FormLabel>
       <Input
         {...field}
         {...props}

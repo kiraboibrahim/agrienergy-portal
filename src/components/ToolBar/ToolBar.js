@@ -13,12 +13,19 @@ import { useState } from "react";
 import CreateFarmerForm from "../CreateFarmerForm/CreateFarmerForm";
 import CreateEscoForm from "../CreateEscoForm/CreateEscoForm";
 import CreateGroupForm from "../CreateGroupForm/CreateGroupForm";
+import CreateAgroProcessorForm from "../CreateAgroProcessorForm/CreateAgroProcessorForm";
+import useModal from "../../hooks/useModal";
 
 export default function ToolBar({ sx = [] }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isFarmerModalOpen, setIsFarmerModalOpen] = useState(false);
-  const [isEscoModalOpen, setIsEscoModalOpen] = useState(false);
-  const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
+  const [isFarmerModalOpen, openFarmerModal, closeFarmerModal] = useModal();
+  const [isEscoModalOpen, openEscoModal, closeEscoModal] = useModal();
+  const [isGroupModalOpen, openGroupModal, closeGroupModal] = useModal();
+  const [
+    isAgroProcessorModalOpen,
+    openAgroProcessorModal,
+    closeAgroProcessorModal,
+  ] = useModal();
   return (
     <>
       <Stack sx={[...(Array.isArray(sx) ? sx : [sx])]} direction="row">
@@ -47,7 +54,7 @@ export default function ToolBar({ sx = [] }) {
               flex: "1 0 auto",
               opacity: 1,
             }}
-            onClick={() => setIsEscoModalOpen(true)}
+            onClick={openEscoModal}
           >
             Create Esco
           </Button>
@@ -55,7 +62,7 @@ export default function ToolBar({ sx = [] }) {
             size="sm"
             color="success"
             sx={{ marginRight: 1, borderRadius: 60, flex: "1 0 auto" }}
-            onClick={() => setIsFarmerModalOpen(true)}
+            onClick={openFarmerModal}
           >
             Create Farmer
           </Button>
@@ -63,7 +70,7 @@ export default function ToolBar({ sx = [] }) {
             size="sm"
             color="success"
             sx={{ marginRight: 1, borderRadius: 60, flex: "1 0 auto" }}
-            onClick={() => setIsGroupModalOpen(true)}
+            onClick={openGroupModal}
           >
             Create Group
           </Button>
@@ -71,6 +78,7 @@ export default function ToolBar({ sx = [] }) {
             size="sm"
             color="success"
             sx={{ marginRight: 1, borderRadius: 60, flex: "1 0 auto" }}
+            onClick={openAgroProcessorModal}
           >
             Create Agro Processor
           </Button>
@@ -83,6 +91,7 @@ export default function ToolBar({ sx = [] }) {
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <AddIcon
+            size="lg"
             sx={{
               transition: "transform, 0.3s",
               transform: isCollapsed ? "rotate(45deg)" : "rotate(0deg)",
@@ -92,15 +101,13 @@ export default function ToolBar({ sx = [] }) {
       </Stack>
       <CreateFarmerModal
         isOpen={isFarmerModalOpen}
-        onClose={() => setIsFarmerModalOpen(false)}
+        onClose={closeFarmerModal}
       />
-      <CreateEscoModal
-        isOpen={isEscoModalOpen}
-        onClose={() => setIsEscoModalOpen(false)}
-      />
-      <CreateGroupModal
-        isOpen={isGroupModalOpen}
-        onClose={() => setIsGroupModalOpen(false)}
+      <CreateEscoModal isOpen={isEscoModalOpen} onClose={closeEscoModal} />
+      <CreateGroupModal isOpen={isGroupModalOpen} onClose={closeGroupModal} />
+      <CreateAgroProcessorModal
+        isOpen={isAgroProcessorModalOpen}
+        onClose={closeAgroProcessorModal}
       />
     </>
   );
@@ -142,6 +149,20 @@ function CreateGroupModal({ isOpen, onClose }) {
           <ModalClose />
           <DialogTitle>Create Group</DialogTitle>
           <CreateGroupForm />
+        </ModalDialog>
+      </ModalOverflow>
+    </Modal>
+  );
+}
+
+function CreateAgroProcessorModal({ isOpen, onClose }) {
+  return (
+    <Modal open={isOpen} onClose={onClose} size="lg">
+      <ModalOverflow>
+        <ModalDialog sx={{ width: 500, maxWidth: "95vw" }}>
+          <ModalClose />
+          <DialogTitle>Create Agro Processor</DialogTitle>
+          <CreateAgroProcessorForm />
         </ModalDialog>
       </ModalOverflow>
     </Modal>

@@ -18,15 +18,14 @@ import TextInput from "../common/fields/TextInput";
 import { Form } from "formik";
 import CSVChippedSelect from "../common/fields/CSVChippedSelect";
 import EscoProfileSchema from "../../validation-schemas/esco/EscoProfileSchema";
-import { toast } from "react-toastify";
 import difference from "../../utils/difference";
 import isEmpty from "../../utils/isEmpty";
-import parseError from "../common/utils/parse-error";
 import DirtyFormik from "../common/fields/DirtyFormik";
 import { useState } from "react";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import useDeleteEsco from "../../hooks/useDeleteEsco";
 import useUpdateEsco from "../../hooks/useUpdateEsco";
+import Error from "../common/utils/Error";
 
 export default function EscoProfile() {
   const { id: escoId } = useParams();
@@ -42,7 +41,7 @@ export default function EscoProfile() {
 
   if (isFetchingEsco) return <Loading />;
 
-  if (!!escoFetchError) return toast.error(parseError(escoFetchError));
+  if (!!escoFetchError) return <Error error={escoFetchError} />;
 
   if (!!esco) {
     return (

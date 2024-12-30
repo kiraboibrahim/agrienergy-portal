@@ -11,5 +11,5 @@ function removeEmpty(obj) {
 
 export default function serializeParams(params) {
   const paramString = new URLSearchParams(removeEmpty(params)).toString();
-  return paramString !== "" ? `?${paramString}` : paramString;
+  return paramString !== "" ? `${paramString}` : paramString;
 }

@@ -114,7 +114,12 @@ export default function FormWizard({ steps, onSubmit, children }) {
   );
 }
 
-export function FormWizardStep({ stepIndex, validationSchema, children }) {
+export function FormWizardStep({
+  stepIndex,
+  validationSchema,
+  children,
+  isOptional = false,
+}) {
   const { meta, helpers } = useFormWizardContext();
   if (helpers.isCurrentStep(stepIndex)) {
     return (
@@ -151,7 +156,13 @@ export function FormWizardStep({ stepIndex, validationSchema, children }) {
               loading={meta.isSubmitting}
               loadingPosition="start"
             >
-              {helpers.isFinalStep() ? "Finish" : "Next"}
+              {isOptional
+                ? helpers.isFinalStep()
+                  ? "Skip & Finish"
+                  : "Skip"
+                : helpers.isFinalStep()
+                ? "Finish"
+                : "Next"}
             </Button>
           </Box>
         </Form>
