@@ -4,6 +4,7 @@ import {
   FormLabel,
   Radio,
   RadioGroup,
+  Typography,
 } from "@mui/joy";
 import { useField, ErrorMessage } from "formik";
 
@@ -14,7 +15,7 @@ export default function RadioInput({
   sx = [],
   ...props
 }) {
-  const [{ value }, { error, touched }, { setValue }] = useField({
+  const [field, { value }, { error, touched }, { setValue }] = useField({
     name,
     ...props,
   });
@@ -22,9 +23,17 @@ export default function RadioInput({
 
   return (
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel htmlFor={label || props.id}>
+        {label}
+        {!!props.required && (
+          <Typography level="body-sm" color="danger">
+            *
+          </Typography>
+        )}
+      </FormLabel>
       <RadioGroup
         {...props}
+        {...field}
         name={name}
         value={value}
         onChange={({ target }) => setValue(target.value)}

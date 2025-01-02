@@ -20,6 +20,8 @@ import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import Empty from "../common/utils/Empty";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import getFarmerFullName from "../../utils/getFarmerFullName";
+import { useGetGroupInstallationsQuery } from "../../services/group";
+import { useGetAgroProcessorInstallationsQuery } from "../../services/agroProcessor";
 
 function InstallationItem({ installation }) {
   return (
@@ -91,14 +93,13 @@ export function FarmerInstallationList() {
     error,
     isFetching,
   } = useGetFarmerInstallationsQuery({ farmerId, page });
-  if (isFetching) {
-    return <Loading />;
-  }
-  if (!!error) {
-    return <Error error={error} />;
-  }
   return (
-    <InstallationList installations={installations} onSelectPage={setPage} />
+    <InstallationList
+      installations={installations}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
   );
 }
 
@@ -110,18 +111,66 @@ export function EscoInstallationList() {
     error,
     isFetching,
   } = useGetEscoInstallationsQuery({ escoId, page });
+  return (
+    <InstallationList
+      installations={installations}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+export function AgroProcessorInstallationList() {
+  const { id: agroProcessorId } = useParams();
+  const [page, setPage] = useState(1);
+  const {
+    data: installations,
+    error,
+    isFetching,
+  } = useGetAgroProcessorInstallationsQuery({ agroProcessorId, page });
+
+  return (
+    <InstallationList
+      installations={installations}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+export function GroupInstallationList() {
+  const { id: groupId } = useParams();
+  const [page, setPage] = useState(1);
+  const {
+    data: installations,
+    error,
+    isFetching,
+  } = useGetGroupInstallationsQuery({ groupId, page });
+
+  return (
+    <InstallationList
+      installations={installations}
+      error={error}
+      isFetching={isFetching}
+      onSelectPage={setPage}
+    />
+  );
+}
+
+function InstallationList({
+  installations,
+  error = null,
+  isFetching = false,
+  onSelectPage = (page) => page,
+}) {
   if (isFetching) {
     return <Loading />;
   }
   if (!!error) {
     return <Error error={error} />;
   }
-  return (
-    <InstallationList installations={installations} onSelectPage={setPage} />
-  );
-}
-
-function InstallationList({ installations, onSelectPage = (page) => page }) {
   return (
     <PaginatedGridList
       data={installations}

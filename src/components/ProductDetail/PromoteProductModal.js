@@ -6,10 +6,30 @@ import {
   ModalOverflow,
 } from "@mui/joy";
 import PromoteProductForm from "../PromoteProductForm/PromoteProductForm";
+import { createContext, useContext } from "react";
+import useModal from "../../hooks/useModal";
 
-export default function PromoteProductModal({ isOpen, onClose, product }) {
+const PromoteProductModalContext = createContext();
+
+export function PromoteProductModalContextProvider({ children }) {
+  const [isOpen, openModal, closeModal] = useModal();
   return (
-    <Modal open={isOpen} onClose={onClose} size="lg">
+    <PromoteProductModalContext.Provider
+      value={[isOpen, openModal, closeModal]}
+    >
+      {children}
+    </PromoteProductModalContext.Provider>
+  );
+}
+
+export function usePromoteProductModalContext() {
+  return useContext(PromoteProductModalContext);
+}
+
+export default function PromoteProductModal({ product }) {
+  const [isOpen, , closeModal] = usePromoteProductModalContext();
+  return (
+    <Modal open={isOpen} onClose={closeModal} size="lg">
       <ModalOverflow>
         <ModalDialog sx={{ width: 500, maxWidth: "95vw" }}>
           <ModalClose />

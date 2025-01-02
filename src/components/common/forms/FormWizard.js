@@ -137,18 +137,21 @@ export function FormWizardStep({
               display: "flex",
               justifyContent: "flex-end",
               marginTop: 3,
+              width: 1,
             }}
           >
             <Button
-              sx={{ marginRight: 1 }}
+              sx={{ marginRight: 1, flex: "1 1 auto", borderRadius: 60 }}
               disabled={helpers.isFirstStep() || meta.isSubmitting}
               size="sm"
               variant="soft"
+              color="success"
               onClick={() => helpers.previousStep()}
             >
               Back
             </Button>
             <Button
+              sx={{ flex: "1 1 auto", borderRadius: 60 }}
               type="submit"
               size="sm"
               color="success"

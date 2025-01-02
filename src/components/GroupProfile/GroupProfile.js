@@ -52,7 +52,6 @@ export default function GroupProfile() {
 
   if (!!group) {
     const groupMembers = getGroupMembers(group);
-    console.log(group);
     return (
       <Box
         sx={{
@@ -150,6 +149,11 @@ export default function GroupProfile() {
               sx={{ marginBottom: 2 }}
             />
             <TextInput
+              name="address"
+              label="Address"
+              sx={{ marginBottom: 2 }}
+            />
+            <TextInput
               name="website"
               label="Website"
               sx={{ marginBottom: 2 }}
@@ -157,7 +161,6 @@ export default function GroupProfile() {
             <LocalSelect
               label="What kind of group is this?"
               name="type"
-              defaultValue="SACCO"
               options={["SACCO", "COOPERATIVE", "OTHER"]}
               sx={{ marginBottom: 2 }}
             ></LocalSelect>

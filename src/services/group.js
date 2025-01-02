@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getAuth } from "./auth";
 import serializeParams from "../utils/serializeParams";
 
 const GROUP_TAG_TYPE = "Group";
@@ -8,12 +7,21 @@ export const groupApi = createApi({
   reducerPath: "groupApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.REACT_APP_API_BASE_URL}groups/`,
+    prepareHeaders: (headers, { getState }) => {
+      const { auth } = getState();
+      headers.set("Authorization", `Bearer ${auth.token}`);
+    },
+    paramsSerializer: (params) => {
+      return serializeParams(params);
+    },
   }),
   tagTypes: [GROUP_TAG_TYPE],
   endpoints: (builder) => ({
     getGroups: builder.query({
-      query: ({ page = 1, search = null }) =>
-        `${serializeParams({ page, search })}`,
+      query: ({ page = 1, search = null }) => ({
+        url: "",
+        params: { page, search },
+      }),
       providesTags: (result) => {
         return result?.data
           ? result.data.map(({ id }) => ({
@@ -32,14 +40,33 @@ export const groupApi = createApi({
         },
       ],
     }),
-
+    getGroupFavoriteProducts: builder.query({
+      query: ({ groupId, page = 1 }) => ({
+        url: `${groupId}/products/favorites`,
+        params: { page },
+      }),
+    }),
+    getGroupOffers: builder.query({
+      query: ({ groupId, page = 1 }) => ({
+        url: `${groupId}/offers`,
+        params: { page },
+      }),
+    }),
+    getGroupInstallations: builder.query({
+      query: ({ groupId, page = 1 }) => ({
+        url: `${groupId}/installations`,
+        params: { page },
+      }),
+    }),
+    getGroupRecommendations: builder.query({
+      query: ({ groupId }) => ({
+        url: `${groupId}/recommendations`,
+      }),
+    }),
     deleteGroup: builder.mutation({
       query: (groupId) => ({
         method: "DELETE",
         url: `${groupId}`,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: (result, error, groupId) => [
         {
@@ -54,9 +81,6 @@ export const groupApi = createApi({
         url: "",
         method: "POST",
         body,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: [GROUP_TAG_TYPE],
       transformErrorResponse: (response, meta, arg) => response.data,
@@ -66,9 +90,6 @@ export const groupApi = createApi({
         url: `${groupId}`,
         method: "PATCH",
         body,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: (result, error, { groupId }) => [
         {
@@ -83,9 +104,6 @@ export const groupApi = createApi({
         url: `${groupId}/members`,
         method: "POST",
         body,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: (result, error, { groupId }) => [
         {
@@ -102,6 +120,10 @@ export const {
   useGetGroupsQuery,
   useLazyGetGroupsQuery,
   useGetGroupQuery,
+  useGetGroupInstallationsQuery,
+  useGetGroupFavoriteProductsQuery,
+  useGetGroupOffersQuery,
+  useGetGroupRecommendationsQuery,
   useDeleteGroupMutation,
   useCreateGroupMutation,
   useUpdateGroupMutation,

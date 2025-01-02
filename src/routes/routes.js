@@ -8,15 +8,12 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Main from "../components/Main/Main";
 import Login from "../components/Login/Login";
 import SuperAdminRequired from "../components/SuperAdminRequired/SuperAdminRequired";
-import {
-  EscoOfferList,
-  FarmerOfferList,
-} from "../components/OfferList/OfferList";
-import { FarmerRecommendationList } from "../components/FarmerRecommendationList/FarmerRecommendationList";
-import GroupProfile from "../components/GroupProfile/GroupProfile";
 import { Suspense } from "react";
 import Loading from "../components/common/utils/Loading";
-import GroupDetail from "../components/GroupDetail/GroupDetail";
+
+import { PromoteProductModalContextProvider } from "../components/ProductDetail/PromoteProductModal";
+import { LearningModalContextProvider } from "../components/ProductDetail/CreateLearningMaterialModal";
+import AgroProcessorList from "../components/AgroProcessorList/AgroProcessorList";
 const FarmerDetail = lazy(() =>
   import("../components/FarmerDetail/FarmerDetail")
 );
@@ -24,19 +21,44 @@ const EscoDetail = lazy(() => import("../components/EscoDetail/EscoDetail"));
 const { EscoProductList } = lazily(() =>
   import("../components/ProductList/Product.List")
 );
-const InterestList = lazy(() =>
-  import("../components/InterestList/InterestList")
+const GroupDetail = lazy(() => import("../components/GroupDetail/GroupDetail"));
+const AgroProcessorDetail = lazy(() =>
+  import("../components/AgroProcessorDetail/AgroProcessorDetail")
 );
+const ProductDetail = lazy(() =>
+  import("../components/ProductDetail/ProductDetail")
+);
+
 const FarmerProfile = lazy(() =>
   import("../components/FarmerProfile/FarmerProfile")
 );
 const EscoProfile = lazy(() => import("../components/EscoProfile/EscoProfile"));
-const ProductDetail = lazy(() =>
-  import("../components/ProductDetail/ProductDetail")
+const GroupProfile = lazy(() =>
+  import("../components/GroupProfile/GroupProfile")
 );
-const { FarmerInstallationList, EscoInstallationList } = lazily(() =>
-  import("../components/InstallationList/InstallationList")
+const AgroProcessorProfile = lazy(() =>
+  import("../components/AgroProcessorProfile/AgroProcessorProfile")
 );
+const { FarmerInterestList, GroupInterestList, AgroProcessorInterestList } =
+  lazily(() => import("../components/InterestList/InterestList"));
+const {
+  EscoOfferList,
+  FarmerOfferList,
+  GroupOfferList,
+  AgroProcessorOfferList,
+} = lazily(() => import("../components/OfferList/OfferList"));
+const {
+  FarmerInstallationList,
+  EscoInstallationList,
+  GroupInstallationList,
+  AgroProcessorInstallationList,
+} = lazily(() => import("../components/InstallationList/InstallationList"));
+const {
+  FarmerRecommendationList,
+  GroupRecommendationList,
+  AgroProcessorRecommendationList,
+} = lazily(() => import("../components/RecommendationList/RecommendationList"));
+
 const routes = [
   {
     path: "/",
@@ -72,7 +94,7 @@ const routes = [
           },
           {
             path: "interests",
-            element: <InterestList />,
+            element: <FarmerInterestList />,
           },
           {
             path: "profile",
@@ -132,7 +154,12 @@ const routes = [
       },
       {
         path: "/groups/:id",
-        element: <GroupDetail />,
+
+        element: (
+          <Suspense fallback={<Loading />}>
+            <GroupDetail />
+          </Suspense>
+        ),
         children: [
           {
             element: <GroupProfile />,
@@ -142,13 +169,71 @@ const routes = [
             path: "profile",
             element: <GroupProfile />,
           },
+          {
+            path: "interests",
+            element: <GroupInterestList />,
+          },
+          {
+            path: "offers",
+            element: <GroupOfferList />,
+          },
+          {
+            path: "installations",
+            element: <GroupInstallationList />,
+          },
+          {
+            path: "recommendations",
+            element: <GroupRecommendationList />,
+          },
+        ],
+      },
+      {
+        path: "agro-processors",
+        element: <AgroProcessorList />,
+      },
+      {
+        path: "/agro-processors/:id",
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AgroProcessorDetail />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: <AgroProcessorProfile />,
+          },
+          {
+            path: "interests",
+            element: <AgroProcessorInterestList />,
+          },
+          {
+            path: "profile",
+            element: <AgroProcessorProfile />,
+          },
+          {
+            path: "installations",
+            element: <AgroProcessorInstallationList />,
+          },
+          {
+            path: "offers",
+            element: <AgroProcessorOfferList />,
+          },
+          {
+            path: "recommendations",
+            element: <AgroProcessorRecommendationList />,
+          },
         ],
       },
       {
         path: "products/:id",
         element: (
           <Suspense fallback={<Loading />}>
-            <ProductDetail />
+            <PromoteProductModalContextProvider>
+              <LearningModalContextProvider>
+                <ProductDetail />
+              </LearningModalContextProvider>
+            </PromoteProductModalContextProvider>
           </Suspense>
         ),
       },

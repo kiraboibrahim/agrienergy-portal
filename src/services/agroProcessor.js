@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getAuth } from "./auth";
 import serializeParams from "../utils/serializeParams";
 
 const AGRO_PROCESSOR_TAG_TYPE = "AgroProcessor";
@@ -8,12 +7,21 @@ export const agroProcessorApi = createApi({
   reducerPath: "agroProcessorApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.REACT_APP_API_BASE_URL}agro-processors/`,
+    prepareHeaders: (headers, { getState }) => {
+      const { auth } = getState();
+      headers.set("Authorization", `Bearer ${auth.token}`);
+    },
+    paramsSerializer: (params) => {
+      return serializeParams(params);
+    },
   }),
   tagTypes: [AGRO_PROCESSOR_TAG_TYPE],
   endpoints: (builder) => ({
     getAgroProcessors: builder.query({
-      query: ({ page = 1, search = null }) =>
-        `${serializeParams({ page, search })}`,
+      query: ({ page = 1, search = null }) => ({
+        url: "",
+        params: { page, search },
+      }),
       providesTags: (result) => {
         return result?.data
           ? result.data.map(({ id }) => ({
@@ -33,27 +41,26 @@ export const agroProcessorApi = createApi({
       ],
     }),
     getAgroProcessorFavorites: builder.query({
-      query: ({ agroProcessorId, page = 1 }) =>
-        `${agroProcessorId}/products/favorites${serializeParams({ page })}`,
+      query: ({ agroProcessorId, page = 1 }) => ({
+        url: `${agroProcessorId}/products/favorites`,
+        params: { page },
+      }),
     }),
     getAgroProcessorOffers: builder.query({
       query: ({ agroProcessorId, page = 1 }) => ({
-        url: `${agroProcessorId}/offers${serializeParams({ page })}`,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
+        url: `${agroProcessorId}/offers`,
+        params: { page },
       }),
     }),
     getAgroProcessorInstallations: builder.query({
-      query: ({ agroProcessorId, page = 1 }) =>
-        `${agroProcessorId}/installations${serializeParams({ page })}`,
+      query: ({ agroProcessorId, page = 1 }) => ({
+        url: `${agroProcessorId}/installations`,
+        params: { page },
+      }),
     }),
     getAgroProcessorRecommendations: builder.query({
       query: ({ agroProcessorId }) => ({
         url: `${agroProcessorId}/recommendations`,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
     }),
     updateAgroProcessor: builder.mutation({
@@ -61,9 +68,6 @@ export const agroProcessorApi = createApi({
         method: "PATCH",
         url: `${agroProcessorId}`,
         body,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: (result, error, { agroProcessorId }) => [
         {
@@ -77,9 +81,6 @@ export const agroProcessorApi = createApi({
       query: (agroProcessorId) => ({
         method: "DELETE",
         url: `${agroProcessorId}`,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: (result, error, agroProcessorId) => [
         {
@@ -94,9 +95,6 @@ export const agroProcessorApi = createApi({
         url: "",
         method: "POST",
         body,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: [AGRO_PROCESSOR_TAG_TYPE],
       transformErrorResponse: (response, meta, arg) => response.data,

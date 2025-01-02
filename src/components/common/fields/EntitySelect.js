@@ -112,10 +112,11 @@ export default function EntitySelect({
 }) {
   const isMounted = useRef(true);
 
-  const [, { value: selectedItems, touched, error }, { setValue }] = useField({
-    name,
-    ...props,
-  });
+  const [, { value: selectedItems, touched, error }, { setValue, setTouched }] =
+    useField({
+      name,
+      ...props,
+    });
   const hasError = touched && !!error;
   const inputRef = useRef(null);
   const [items, setItems] = useState([]);
@@ -157,6 +158,7 @@ export default function EntitySelect({
   function selectItem(item) {
     const _isItemSelected = isItemSelected(item);
     if (_isItemSelected) return;
+    if (!touched) setTouched(true);
     setValue([...getSelectedItems(), item]);
   }
   function unSelectItem(item) {
@@ -187,7 +189,14 @@ export default function EntitySelect({
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
       <ClickAwayListener onClickAway={handlePopupClose}>
         <Box>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel htmlFor={label || props.id}>
+            {label}
+            {!!label && !!props.required && (
+              <Typography color="danger" level="body-sm">
+                *
+              </Typography>
+            )}
+          </FormLabel>
           <Input
             ref={inputRef}
             onChange={handleChange}

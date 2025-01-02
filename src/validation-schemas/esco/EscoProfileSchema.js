@@ -1,8 +1,6 @@
 import * as Yup from "yup";
 import { DOMAIN_REGEX, UG_PHONE_NUMBER_REGEX } from "../../constants";
 
-const today = new Date();
-
 const EscoProfileSchema = Yup.object({
   name: Yup.string()
     .required("Name is required")
@@ -22,9 +20,7 @@ const EscoProfileSchema = Yup.object({
     .notRequired(),
   latitude: Yup.number().notRequired(),
   longitude: Yup.number().notRequired(),
-  incorporationDate: Yup.date()
-    .max(`${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`)
-    .required("Date of incorporation is required"),
+  incorporationDate: Yup.date().required("Date of incorporation is required"),
   address: Yup.string().required("Address is required"),
   specialization: Yup.string().required("Specialization is required"),
 });

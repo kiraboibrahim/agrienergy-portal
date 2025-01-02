@@ -8,7 +8,11 @@ import {
   Button,
 } from "@mui/joy";
 import { Form, Formik, useFormikContext } from "formik";
-import PromotionSchema from "../../validation-schemas/product/PromotionSchema";
+import PromotionSchema, {
+  ALL_FARMERS_RECIPIENT,
+  ALL_GROUPS_RECIPIENT,
+  GROUP_RECIPIENT,
+} from "../../validation-schemas/product/PromotionSchema";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import toTitleCase from "../../utils/toTitleCase";
 import RadioInput from "../common/fields/RadioInput";
@@ -52,7 +56,7 @@ export default function PromoteProductForm({ product }) {
         validationSchema={PromotionSchema}
         initialValues={{
           recipient: "",
-          group: null,
+          group: [],
           message: "",
         }}
         onSubmit={async (values) => {
@@ -64,14 +68,20 @@ export default function PromoteProductForm({ product }) {
             name="recipient"
             label="Send promotion to"
             options={{
-              ALL_FARMERS: "All farmers",
-              ALL_GROUPS: "All groups",
-              GROUP: "Select group",
+              [ALL_FARMERS_RECIPIENT]: "All farmers",
+              [ALL_GROUPS_RECIPIENT]: "All groups",
+              [GROUP_RECIPIENT]: "Select group",
             }}
+            required
             sx={{ marginBottom: 1 }}
           ></RadioInput>
           <DependentGroupSelect />
-          <Textarea name="message" label="Message" sx={{ marginTop: 2 }} />
+          <Textarea
+            name="message"
+            label="Message"
+            required
+            sx={{ marginTop: 2 }}
+          />
           <Button
             type="submit"
             sx={{ marginTop: 2, borderRadius: "lg", width: "100%" }}
@@ -93,5 +103,9 @@ function DependentGroupSelect() {
     values: { recipient },
   } = useFormikContext();
 
-  return recipient === "GROUP" ? <GroupSelect name="group" label="" /> : <></>;
+  return recipient === GROUP_RECIPIENT ? (
+    <GroupSelect name="group" label="" placeholder="Search groups" />
+  ) : (
+    <></>
+  );
 }

@@ -4,6 +4,7 @@ import {
   FormHelperText,
   Select,
   Option,
+  Typography,
 } from "@mui/joy";
 import { useField, ErrorMessage } from "formik";
 
@@ -16,21 +17,33 @@ export default function LocalSelect({
   multiple,
   ...props
 }) {
-  const [, { value: selectedOptions, touched, error }, { setValue }] = useField(
-    { name, ...props }
-  );
+  const [
+    field,
+    { value: selectedOptions, touched, error },
+    { setValue, setTouched },
+  ] = useField({ name, ...props });
 
   const hasError = touched && !!error;
 
   function selectOption(option) {
+    if (!touched) setTouched(true);
+    console.log("Selected Option: ", option);
     return !!multiple
       ? setValue([...selectedOptions, option])
       : setValue(option);
   }
   return (
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel htmlFor={label || props.id}>
+        {label}
+        {!!props.required && (
+          <Typography level="body-sm" color="danger">
+            *
+          </Typography>
+        )}
+      </FormLabel>
       <Select
+        {...field}
         name={name}
         multiple={!!multiple}
         defaultValue={defaultValue}

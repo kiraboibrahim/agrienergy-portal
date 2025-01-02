@@ -12,7 +12,6 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
 import { useParams } from "react-router";
-import { useGetFarmerQuery } from "../../services/farmer";
 import Loading from "../common/utils/Loading";
 import TextInput from "../common/fields/TextInput";
 import Textarea from "../common/fields/Textarea";
@@ -21,19 +20,25 @@ import DirtyFormik from "../common/fields/DirtyFormik";
 import { useState } from "react";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import CSVChippedSelect from "../common/fields/CSVChippedSelect";
-import { ANIMALS, CROPS } from "../../constants";
-import useDeleteFarmer from "../../hooks/useDeleteFarmer";
-import useUpdateFarmer from "../../hooks/useUpdateFarmer";
+import useDeleteAgroProcessor from "../../hooks/useDeleteAgroProcessor";
+import useUpdateAgroProcessor from "../../hooks/useUpdateAgroProcessor";
 import difference from "../../utils/difference";
-import FarmerProfileSchema from "../../validation-schemas/farmer/FarmerProfileSchema";
 import Error from "../common/utils/Error";
+import AgroProcessorProfileSchema from "../../validation-schemas/agroProcessor/AgroProcessorProfileSchema";
+import { useGetAgroProcessorQuery } from "../../services/agroProcessor";
 
-export default function FarmerProfile() {
+export default function AgroProcessorProfile() {
   const [isDirty, setIsDirty] = useState(false);
-  const { id: farmerId } = useParams();
-  const { data: farmer, error, isFetching } = useGetFarmerQuery(farmerId);
-  const [deleteFarmer, isDeletingFarmer] = useDeleteFarmer();
-  const [updateFarmer, isUpdatingFarmer] = useUpdateFarmer();
+  const { id: agroProcessorId } = useParams();
+  const {
+    data: agroProcessor,
+    error,
+    isFetching,
+  } = useGetAgroProcessorQuery(agroProcessorId);
+  const [deleteAgroProcessor, isDeletingAgroProcessor] =
+    useDeleteAgroProcessor();
+  const [updateAgroProcessor, isUpdatingAgroProcessor] =
+    useUpdateAgroProcessor();
 
   if (!!error) {
     return <Error error={error} />;
@@ -41,7 +46,7 @@ export default function FarmerProfile() {
   if (isFetching) {
     return <Loading />;
   }
-  if (!!farmer) {
+  if (!!agroProcessor) {
     return (
       <Box
         sx={{
@@ -65,14 +70,14 @@ export default function FarmerProfile() {
           <Box sx={{ width: 400, position: "relative" }}>
             <AspectRatio variant="plain">
               <img
-                src={resolvePhotoSrc(farmer.coverPhoto)}
-                alt={farmer.firstName}
+                src={resolvePhotoSrc(agroProcessor.coverPhoto)}
+                alt={agroProcessor.name}
               />
             </AspectRatio>
             <Avatar
               size="lg"
               variant="solid"
-              src={resolvePhotoSrc(farmer.profilePhoto)}
+              src={resolvePhotoSrc(agroProcessor.profilePhoto)}
               sx={{
                 position: "absolute",
                 left: 10,
@@ -89,11 +94,11 @@ export default function FarmerProfile() {
           sx={{ marginTop: 4 }}
         >
           <Button
-            disabled={isDeletingFarmer}
-            loading={isDeletingFarmer}
+            disabled={isDeletingAgroProcessor}
+            loading={isDeletingAgroProcessor}
             loadingPosition="start"
             startDecorator={<DeleteOutlinedIcon />}
-            onClick={async () => await deleteFarmer(farmerId)}
+            onClick={async () => await deleteAgroProcessor(agroProcessorId)}
           >
             Delete
           </Button>
@@ -102,35 +107,24 @@ export default function FarmerProfile() {
         </ButtonGroup>
         <DirtyFormik
           initialValues={{
-            ...farmer,
+            ...agroProcessor,
           }}
-          validationSchema={FarmerProfileSchema}
+          validationSchema={AgroProcessorProfileSchema}
           onSubmit={async (values) => {
-            const updatedValues = difference(farmer, values);
-            await updateFarmer(farmerId, updatedValues);
+            const updatedValues = difference(agroProcessor, values);
+            return await updateAgroProcessor(agroProcessorId, updatedValues);
           }}
           onDirty={(isDirty) => setIsDirty(isDirty)}
         >
           <Form>
             <Box sx={{ marginTop: 4 }}>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  name="firstName"
-                  label="First name"
-                />
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  label="Last name"
-                  name="lastName"
-                />
-              </Stack>
+              <TextInput sx={{ marginBottom: 2 }} label="Name" name="name" />
               <TextInput
-                sx={{ marginTop: 2 }}
+                sx={{ marginBottom: 2 }}
                 label="Phone number"
                 name="phoneNumber"
                 endDecorator={
-                  farmer.isVerified ? (
+                  agroProcessor.isVerified ? (
                     <VerifiedOutlinedIcon color="success" />
                   ) : (
                     <Button variant="soft" size="sm" color="danger">
@@ -140,78 +134,34 @@ export default function FarmerProfile() {
                 }
               />
 
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={2}
+              <TextInput
+                sx={{ marginBottom: 2 }}
+                label="Address"
+                name="address"
+              />
+              <TextInput
+                sx={{ marginBottom: 2 }}
+                label="Website"
+                name="website"
+              />
+
+              <TextInput
+                sx={{ marginBottom: 2 }}
+                label="Incorporation Date"
+                name="incorporationDate"
+              />
+
+              <CSVChippedSelect
                 sx={{ marginTop: 2 }}
-              >
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  label="Latitude"
-                  name="latitude"
-                />
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  label="Longitude"
-                  name="longitude"
-                />
-              </Stack>
+                label="Equipment"
+                name="equipment"
+                isDynamic={true}
+              />
 
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={2}
-                sx={{ marginTop: 3 }}
-              >
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  label="Farm name"
-                  name="farmName"
-                  value={farmer.farmName}
-                />
-
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  label="Farm size"
-                  name="farmSize"
-                />
-
-                <TextInput
-                  sx={{ flexGrow: 1 }}
-                  label="Farm date"
-                  name="farmEstablishedOn"
-                  type="date"
-                />
-              </Stack>
               <Textarea
                 sx={{ marginTop: 2 }}
-                label="Farm description"
-                name="farmDescription"
-              />
-
-              <CSVChippedSelect
-                options={ANIMALS}
-                sx={{ marginTop: 2 }}
-                label="Animals"
-                name="animalsKept"
-              />
-              <TextInput
-                name="animalsPerType"
-                label="For each animal selected, how many animals do you rear?"
-                placeholder="10,15,20"
-                sx={{ marginBottom: 1 }}
-              />
-
-              <CSVChippedSelect
-                options={CROPS}
-                sx={{ marginTop: 2 }}
-                label="Crops"
-                name="cropsGrown"
-              />
-              <TextInput
-                name="acreagePerCrop"
-                label="For each crop selected, how many acres per crop?"
-                placeholder="10,15,20"
-                sx={{ marginTop: 2 }}
+                label="Equipment description"
+                name="equipmentDescription"
               />
 
               <Stack
@@ -227,7 +177,7 @@ export default function FarmerProfile() {
                   size="md"
                   variant="soft"
                   color="success"
-                  disabled={!isDirty || isUpdatingFarmer}
+                  disabled={!isDirty || isUpdatingAgroProcessor}
                 >
                   Undo Changes
                 </Button>
@@ -238,8 +188,8 @@ export default function FarmerProfile() {
                   startDecorator={<SaveOutlinedIcon />}
                   sx={{ flexGrow: 2, marginLeft: 2 }}
                   type="submit"
-                  disabled={!isDirty || isUpdatingFarmer}
-                  loading={isUpdatingFarmer}
+                  disabled={!isDirty || isUpdatingAgroProcessor}
+                  loading={isUpdatingAgroProcessor}
                   loadingPosition="start"
                 >
                   Save

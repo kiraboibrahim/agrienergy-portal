@@ -7,6 +7,7 @@ import {
   FormHelperText,
   Button,
   Input,
+  Typography,
 } from "@mui/joy";
 import { useState, useCallback } from "react";
 import { useField } from "formik";
@@ -20,12 +21,14 @@ export default function CSVChippedSelect({
   ...props
 }) {
   const [newOption, setNewOption] = useState("");
-  const [, { value: selectedOptions, error, touched }, { setValue }] = useField(
-    {
-      name,
-      ...props,
-    }
-  );
+  const [
+    ,
+    { value: selectedOptions, error, touched },
+    { setValue, setTouched },
+  ] = useField({
+    name,
+    ...props,
+  });
   const hasError = touched && !!error;
 
   const getSelectedOptions = useCallback(() => {
@@ -66,12 +69,43 @@ export default function CSVChippedSelect({
   };
   const selectOption = (option) => {
     if (isOptionSelected(option)) return;
+    if (!touched) setTouched(true);
     setValue(fromArrayToCSV([...fromCSVToArray(getSelectedOptions()), option]));
   };
   return (
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
-      <FormLabel>{label}</FormLabel>
-      <Box sx={{ marginTop: 1 }}>
+      <FormLabel>
+        {label}
+        {!!props.required && (
+          <Typography level="body-sm" color="danger">
+            *
+          </Typography>
+        )}
+      </FormLabel>
+      <Box>
+        {isDynamic && (
+          <Box sx={{ marginBottom: 1 }}>
+            <Input
+              size="sm"
+              value={newOption}
+              onChange={({ target }) => setNewOption(target.value)}
+              endDecorator={
+                <Button
+                  variant="soft"
+                  color="success"
+                  onClick={() => {
+                    !!newOption.trim().length && selectOption(newOption);
+                    setNewOption("");
+                  }}
+                >
+                  Add
+                </Button>
+              }
+              placeholder="Type to add values"
+              {...props}
+            />
+          </Box>
+        )}
         <Box sx={{ diplay: "flex", flexWrap: "wrap" }}>
           {getOptions().map((option, index) => {
             const _isOptionSelected = isOptionSelected(option);
@@ -100,24 +134,6 @@ export default function CSVChippedSelect({
             );
           })}
         </Box>
-        {isDynamic && (
-          <Input
-            size="sm"
-            value={newOption}
-            onChange={({ target }) => setNewOption(target.value)}
-            endDecorator={
-              <Button
-                variant="soft"
-                color="success"
-                onClick={() => {
-                  !!newOption.trim().length && selectOption(newOption);
-                }}
-              >
-                Add
-              </Button>
-            }
-          />
-        )}
       </Box>
 
       {hasError && (

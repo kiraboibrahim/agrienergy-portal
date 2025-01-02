@@ -4,6 +4,7 @@ import FarmerSelect from "../common/fields/FarmerSelect";
 import Textarea from "../common/fields/Textarea";
 import LocalSelect from "../common/fields/LocalSelect";
 import {
+  GROUP_TYPES,
   GroupDetailsSchema,
   GroupMembersSchema,
 } from "../../validation-schemas/group/GroupProfileSchema";
@@ -19,7 +20,7 @@ export default function CreateGroupForm() {
       onSubmit={async (values) => await createGroup(values)}
     >
       <FormWizardStep stepIndex={1} validationSchema={GroupDetailsSchema}>
-        <TextInput name="name" label="Name" sx={{ marginBottom: 2 }} />
+        <TextInput name="name" label="Name" required sx={{ marginBottom: 2 }} />
         <TextInput
           name="email"
           label="Email"
@@ -29,18 +30,28 @@ export default function CreateGroupForm() {
         <TextInput
           name="phoneNumber"
           label="Phone number"
+          required
           sx={{ marginBottom: 2 }}
         />
-        <TextInput name="address" label="Address" sx={{ marginBottom: 2 }} />
+        <TextInput
+          name="address"
+          label="Address"
+          required
+          sx={{ marginBottom: 2 }}
+        />
         <TextInput name="website" label="Website" sx={{ marginBottom: 2 }} />
         <LocalSelect
           label="What kind of group is this?"
           name="type"
-          defaultValue="SACCO"
-          options={["SACCO", "COOPERATIVE", "OTHER"]}
+          options={GROUP_TYPES}
           sx={{ marginBottom: 2 }}
+          required
         ></LocalSelect>
-        <Textarea name="description" label="Tell us more about this group" />
+        <Textarea
+          name="description"
+          label="Tell us more about this group"
+          required
+        />
       </FormWizardStep>
       <FormWizardStep
         stepIndex={2}

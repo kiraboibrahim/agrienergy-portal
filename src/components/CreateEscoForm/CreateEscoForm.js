@@ -1,7 +1,7 @@
 import { Form, Formik } from "formik";
 import TextInput from "../common/fields/TextInput";
 import CSVChippedSelect from "../common/fields/CSVChippedSelect";
-import { Button, Stack } from "@mui/joy";
+import { Button } from "@mui/joy";
 import EscoProfileSchema from "../../validation-schemas/esco/EscoProfileSchema";
 import useCreateEsco from "../../hooks/useCreateEsco";
 
@@ -25,17 +25,19 @@ export default function CreateEscoForm() {
       }}
     >
       <Form>
-        <TextInput name="name" label="Name" sx={{ marginBottom: 2 }} />
+        <TextInput name="name" label="Name" required sx={{ marginBottom: 2 }} />
         <TextInput
           name="email"
           label="Email"
           type="email"
+          required
           sx={{ marginBottom: 2 }}
         />
         <TextInput
           name="phoneNumber"
           label="Phone number"
           type="tel"
+          required
           sx={{ marginBottom: 2 }}
         />
         <TextInput
@@ -44,7 +46,12 @@ export default function CreateEscoForm() {
           placeholder="example.com"
           sx={{ marginBottom: 2 }}
         />
-        <TextInput name="address" label="Address" sx={{ marginBottom: 2 }} />
+        <TextInput
+          name="address"
+          label="Address"
+          required
+          sx={{ marginBottom: 2 }}
+        />
         <TextInput
           name="latitude"
           label="Latitude"
@@ -61,26 +68,27 @@ export default function CreateEscoForm() {
           name="incorporationDate"
           label="Date of Incorporation"
           type="date"
+          required
           sx={{ marginBottom: 2 }}
         />
         <CSVChippedSelect
           isDynamic={true}
           name="specialization"
           label="What do you specialize in?"
+          required
           sx={{ marginBottom: 2 }}
         />
-        <Stack direction="row">
-          <Button
-            type="submit"
-            sx={{ marginLeft: "auto" }}
-            color="success"
-            loading={isCreatingEsco}
-            loadingPosition="start"
-            disabled={isCreatingEsco}
-          >
-            Create Esco
-          </Button>
-        </Stack>
+
+        <Button
+          type="submit"
+          sx={{ borderRadius: 60, width: 1 }}
+          color="success"
+          loading={isCreatingEsco}
+          loadingPosition="start"
+          disabled={isCreatingEsco}
+        >
+          Create Esco
+        </Button>
       </Form>
     </Formik>
   );

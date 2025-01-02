@@ -45,6 +45,14 @@ export default function Nav() {
       >
         Farmers
       </Chip>
+      <Chip
+        sx={{ marginRight: 5 }}
+        size="lg"
+        component={RouterLink}
+        to={`/agro-processors${search}`}
+      >
+        Agro Processors
+      </Chip>
       <Chip size="lg" component={RouterLink} to={`/groups${search}`}>
         Groups
       </Chip>

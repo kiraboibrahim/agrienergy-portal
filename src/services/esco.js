@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import serializeParams from "../utils/serializeParams";
-import { getAuth } from "./auth";
 
 const ESCO_TAG_TYPE = "Esco";
 
@@ -8,12 +7,21 @@ export const escoApi = createApi({
   reducerPath: "escoApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.REACT_APP_API_BASE_URL}escos/`,
+    prepareHeaders: (headers, { getState }) => {
+      const { auth } = getState();
+      headers.set("Authorization", `Bearer ${auth.token}`);
+    },
+    paramsSerializer: (params) => {
+      return serializeParams(params);
+    },
   }),
   tagTypes: [ESCO_TAG_TYPE],
   endpoints: (builder) => ({
     getEscos: builder.query({
-      query: ({ page = 1, search = null }) =>
-        `${serializeParams({ page, search })}`,
+      query: ({ page = 1, search = null }) => ({
+        url: "",
+        params: { page, search },
+      }),
       providesTags: (result) => {
         return result?.data
           ? result.data.map(({ id }) => ({ type: ESCO_TAG_TYPE, id }))
@@ -30,16 +38,22 @@ export const escoApi = createApi({
       ],
     }),
     getEscoProducts: builder.query({
-      query: ({ escoId, page = 1 }) =>
-        `${escoId}/products${serializeParams({ page })}`,
+      query: ({ escoId, page = 1 }) => ({
+        url: `${escoId}/products`,
+        params: { page },
+      }),
     }),
     getEscoOffers: builder.query({
-      query: ({ escoId, page = 1 }) =>
-        `${escoId}/offers${serializeParams({ page })}`,
+      query: ({ escoId, page = 1 }) => ({
+        url: `${escoId}/offers`,
+        params: { page },
+      }),
     }),
     getEscoInstallations: builder.query({
-      query: ({ escoId, page = 1 }) =>
-        `${escoId}/installations${serializeParams({ page })}`,
+      query: ({ escoId, page = 1 }) => ({
+        url: `${escoId}/installations`,
+        params: { page },
+      }),
     }),
     updateEsco: builder.mutation({
       query: ({ escoId, ...body }) => ({
@@ -59,9 +73,6 @@ export const escoApi = createApi({
       query: (body) => ({
         method: "POST",
         body,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: [ESCO_TAG_TYPE],
       transformErrorResponse: (response, meta, arg) => response.data,
@@ -70,9 +81,6 @@ export const escoApi = createApi({
       query: (escoId) => ({
         method: "DELETE",
         url: `${escoId}`,
-        headers: {
-          Authorization: `Bearer ${getAuth().token}`,
-        },
       }),
       invalidatesTags: (result, error, escoId) => [
         {

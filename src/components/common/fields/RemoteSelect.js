@@ -1,4 +1,10 @@
-import { FormControl, FormLabel, Box, FormHelperText } from "@mui/joy";
+import {
+  FormControl,
+  FormLabel,
+  Box,
+  FormHelperText,
+  Typography,
+} from "@mui/joy";
 import AsyncSelect from "react-select/async";
 import { useField } from "formik";
 import { useTheme } from "@mui/joy/styles";
@@ -22,10 +28,18 @@ export default function RemoteSelect({
     { setValue, setTouched },
   ] = useField({ name, ...props });
 
+  const { required } = props;
   const hasError = touched && !!error;
   return (
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel>
+        {label}
+        {!!required && (
+          <Typography color="danger" level="body-sm">
+            *
+          </Typography>
+        )}
+      </FormLabel>
       <Box sx={{ display: "flex", flexWrap: "wrap" }}>
         <AsyncSelect
           isMulti={isMulti}

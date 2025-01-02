@@ -8,18 +8,21 @@ import {
   Typography,
 } from "@mui/joy";
 import { NavLink as RouterLink, Outlet, useParams } from "react-router-dom";
-import { useGetFarmerQuery } from "../../services/farmer";
 import Loading from "../common/utils/Loading";
 import Error from "../common/utils/Error";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import toTitleCase from "../../utils/toTitleCase";
-import getFarmerFullName from "../../utils/getFarmerFullName";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
+import { useGetAgroProcessorQuery } from "../../services/agroProcessor";
 
-export default function FarmerDetail() {
-  const { id: farmerId } = useParams();
-  const { data: farmer, error, isFetching } = useGetFarmerQuery(farmerId);
+export default function AgroProcessorDetail() {
+  const { id: agroProcessorId } = useParams();
+  const {
+    data: agroProcessor,
+    error,
+    isFetching,
+  } = useGetAgroProcessorQuery(agroProcessorId);
   if (!!error) {
     return <Error error={error} />;
   }
@@ -27,7 +30,7 @@ export default function FarmerDetail() {
     return <Loading />;
   }
 
-  if (!!farmer) {
+  if (!!agroProcessor) {
     return (
       <>
         <Card
@@ -35,23 +38,23 @@ export default function FarmerDetail() {
           sx={{ marginBottom: 5, overflow: "hidden" }}
         >
           <CardContent orientation="horizontal">
-            <Avatar size="lg" src={resolvePhotoSrc(farmer.profilePhoto)}>
-              {farmer.lastName}
+            <Avatar size="lg" src={resolvePhotoSrc(agroProcessor.profilePhoto)}>
+              {agroProcessor.lastName}
             </Avatar>
             <Box>
               <Typography level="h3">
-                {toTitleCase(getFarmerFullName(farmer))}
+                {toTitleCase(agroProcessor.name)}
               </Typography>
 
               <Box level="body-xs" sx={{ marginTop: 1 }}>
-                {farmer?.cropsGrown.split(",").map((crop, index) => (
+                {agroProcessor?.equipment.split(",").map((equipment, index) => (
                   <Chip
                     size="sm"
                     key={index}
                     color="success"
                     sx={{ marginRight: 1, overflow: "scroll" }}
                   >
-                    {crop}
+                    {equipment}
                   </Chip>
                 ))}
               </Box>
@@ -64,13 +67,13 @@ export default function FarmerDetail() {
                   level="body-xs"
                   startDecorator={<LocationOnOutlinedIcon />}
                 >
-                  {farmer.address}
+                  {agroProcessor.address}
                 </Typography>
                 <Typography
                   level="body-xs"
                   startDecorator={<PhoneAndroidOutlinedIcon />}
                 >
-                  {farmer.phoneNumber}
+                  {agroProcessor.phoneNumber}
                 </Typography>
               </Stack>
             </Box>
@@ -92,7 +95,7 @@ export default function FarmerDetail() {
         >
           <Chip
             component={RouterLink}
-            to={`/farmers/${farmer.id}/profile`}
+            to={`/agro-processors/${agroProcessor.id}/profile`}
             sx={{ marginRight: 5 }}
             size="md"
           >
@@ -100,7 +103,7 @@ export default function FarmerDetail() {
           </Chip>
           <Chip
             component={RouterLink}
-            to={`/farmers/${farmer.id}/interests`}
+            to={`/agro-processors/${agroProcessor.id}/interests`}
             sx={{ marginRight: 5 }}
             size="md"
           >
@@ -108,7 +111,7 @@ export default function FarmerDetail() {
           </Chip>
           <Chip
             component={RouterLink}
-            to={`/farmers/${farmer.id}/offers`}
+            to={`/agro-processors/${agroProcessor.id}/offers`}
             sx={{ marginRight: 5 }}
             size="md"
           >
@@ -116,7 +119,7 @@ export default function FarmerDetail() {
           </Chip>
           <Chip
             component={RouterLink}
-            to={`/farmers/${farmer.id}/installations`}
+            to={`/agro-processors/${agroProcessor.id}/installations`}
             sx={{ marginRight: 5 }}
             size="md"
           >
@@ -124,7 +127,7 @@ export default function FarmerDetail() {
           </Chip>
           <Chip
             component={RouterLink}
-            to={`/farmers/${farmer.id}/recommendations`}
+            to={`/agro-processors/${agroProcessor.id}/recommendations`}
             size="md"
           >
             Recommendations

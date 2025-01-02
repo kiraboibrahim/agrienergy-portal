@@ -32,7 +32,9 @@ export default function useCreateGroup() {
     const {
       phoneNumber,
       address,
+      email,
       name,
+      website,
       type,
       description,
       farmers = [],
@@ -44,7 +46,15 @@ export default function useCreateGroup() {
       address,
       phoneNumber,
     };
-    const groupDetails = { name, type, phoneNumber, address, description };
+    const groupDetails = {
+      name,
+      type,
+      phoneNumber,
+      email,
+      website,
+      address,
+      description,
+    };
     const _body = { admin, ...groupDetails };
     const { unwrap } = _createGroup(_body);
     try {
