@@ -15,7 +15,7 @@ export default function RadioInput({
   sx = [],
   ...props
 }) {
-  const [field, { value }, { error, touched }, { setValue }] = useField({
+  const [field, { error, touched, value }, { setValue }] = useField({
     name,
     ...props,
   });
@@ -32,8 +32,8 @@ export default function RadioInput({
         )}
       </FormLabel>
       <RadioGroup
-        {...props}
         {...field}
+        {...props}
         name={name}
         value={value}
         onChange={({ target }) => setValue(target.value)}

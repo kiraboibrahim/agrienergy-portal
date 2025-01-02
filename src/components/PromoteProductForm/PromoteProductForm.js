@@ -74,7 +74,7 @@ export default function PromoteProductForm({ product }) {
             }}
             required
             sx={{ marginBottom: 1 }}
-          ></RadioInput>
+          />
           <DependentGroupSelect />
           <Textarea
             name="message"
