@@ -13,14 +13,14 @@ export default function useCreateGroup() {
     farmers = [],
     agroProcessors = []
   ) {
-    if (!farmers.length && !agroProcessors.length) {
+    if (!farmers?.length && !agroProcessors?.length) {
       return;
     }
     const body = {};
-    if (!!farmers.length) {
+    if (!!farmers?.length) {
       body["farmerIds"] = farmers.map((farmer) => farmer.id);
     }
-    if (!!agroProcessors.length) {
+    if (!!agroProcessors?.length) {
       body["agroProcessorIds"] = agroProcessors.map(
         (agroProcessor) => agroProcessor.id
       );

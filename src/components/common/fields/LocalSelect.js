@@ -27,7 +27,6 @@ export default function LocalSelect({
 
   function selectOption(option) {
     if (!touched) setTouched(true);
-    console.log("Selected Option: ", option);
     return !!multiple
       ? setValue([...selectedOptions, option])
       : setValue(option);

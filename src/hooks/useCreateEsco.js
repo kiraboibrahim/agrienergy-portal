@@ -4,8 +4,10 @@ import parseError from "../components/common/utils/parse-error";
 
 export default function useCreateEsco() {
   const [_createEsco, { isLoading }] = useCreateEscoMutation();
+
   async function createEsco(body) {
     const { unwrap } = _createEsco(body);
+
     try {
       const data = await unwrap();
       toast.success("Esco created");

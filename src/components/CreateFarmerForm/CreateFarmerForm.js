@@ -84,7 +84,12 @@ export default function CreateFarmerForm() {
           required
           sx={{ marginBottom: 2 }}
         />
-        <TextInput name="farmSize" label="Farm size" sx={{ marginBottom: 2 }} />
+        <TextInput
+          name="farmSize"
+          label="Farm size"
+          sx={{ marginBottom: 2 }}
+          required
+        />
         <Textarea
           name="farmDescription"
           label="Farm description"

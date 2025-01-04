@@ -11,6 +11,7 @@ import {
 } from "@mui/joy";
 import { useState, useCallback } from "react";
 import { useField } from "formik";
+import isEmptyString from "../../../utils/isEmtpyString";
 
 export default function CSVChippedSelect({
   name,
@@ -29,6 +30,7 @@ export default function CSVChippedSelect({
     name,
     ...props,
   });
+  const { required } = props;
   const hasError = touched && !!error;
 
   const getSelectedOptions = useCallback(() => {
@@ -61,22 +63,27 @@ export default function CSVChippedSelect({
   }
 
   const unSelectOption = (option) => {
-    setValue(
-      fromArrayToCSV(
-        fromCSVToArray(getSelectedOptions()).filter((v) => v !== option)
-      )
+    const value = fromArrayToCSV(
+      fromCSVToArray(getSelectedOptions()).filter((v) => v !== option)
     );
+    if (!required && isEmptyString(value)) return setValue(null);
+    return setValue(value);
   };
   const selectOption = (option) => {
     if (isOptionSelected(option)) return;
     if (!touched) setTouched(true);
-    setValue(fromArrayToCSV([...fromCSVToArray(getSelectedOptions()), option]));
+    const value = fromArrayToCSV([
+      ...fromCSVToArray(getSelectedOptions()),
+      option,
+    ]);
+    if (!required && isEmptyString(value)) return setValue(null);
+    return setValue(value);
   };
   return (
     <FormControl sx={Array.isArray(sx) ? sx : [sx]} error={hasError}>
       <FormLabel>
         {label}
-        {!!props.required && (
+        {!!required && (
           <Typography level="body-sm" color="danger">
             *
           </Typography>
@@ -102,7 +109,6 @@ export default function CSVChippedSelect({
                 </Button>
               }
               placeholder="Type to add values"
-              {...props}
             />
           </Box>
         )}

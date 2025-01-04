@@ -10,16 +10,7 @@ export default function CreateEscoForm() {
   return (
     <Formik
       validationSchema={EscoProfileSchema}
-      initialValues={{
-        name: "",
-        email: "",
-        phoneNumber: "",
-        website: "",
-        latitude: "",
-        longitude: "",
-        incorporationDate: "",
-        specialization: "",
-      }}
+      initialValues={{}}
       onSubmit={async (values) => {
         await createEsco(values);
       }}
@@ -49,8 +40,8 @@ export default function CreateEscoForm() {
         <TextInput
           name="address"
           label="Address"
-          required
           sx={{ marginBottom: 2 }}
+          required
         />
         <TextInput
           name="latitude"

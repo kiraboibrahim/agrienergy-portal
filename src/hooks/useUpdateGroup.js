@@ -7,11 +7,11 @@ export default function useUpdateGroup() {
   function formatBody(body) {
     const bodyCopy = structuredClone(body);
     const { farmers, agroProcessors } = bodyCopy;
-    if (!!farmers?.length) {
+    if (!!farmers) {
       bodyCopy["farmerIds"] = farmers.map((farmer) => farmer.id);
       delete bodyCopy["farmers"];
     }
-    if (!!agroProcessors?.length) {
+    if (!!agroProcessors) {
       bodyCopy["agroProcessorIds"] = agroProcessors.map(
         (agroProcessor) => agroProcessor.id
       );
