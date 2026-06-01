@@ -26,8 +26,42 @@ import { useGetGroupOffersQuery } from "../../services/group";
 import { useGetAgroProcessorOffersQuery } from "../../services/agroProcessor";
 
 function OfferItem({
-  offer: { product, esco, farmer, isAccepted, expiryDate },
+  offer: {
+    product,
+    esco,
+    farmer,
+    group,
+    agroProcessor,
+    isAccepted,
+    expiryDate,
+  },
 }) {
+  const recipient = farmer || group || agroProcessor;
+  const getRecipientName = () => {
+    if (!!farmer) {
+      return getFarmerFullName(farmer);
+    }
+    if (!!group) {
+      return group.name;
+    }
+    if (!!agroProcessor) {
+      return agroProcessor.name;
+    }
+    return "";
+  };
+  const getUrl = () => {
+    if (!!farmer) {
+      return `/farmers/${farmer.id}`;
+    }
+    if (!!group) {
+      return `/groups/${group.id}`;
+    }
+    if (!!agroProcessor) {
+      return `/agro-processors/${agroProcessor.id}`;
+    }
+    return "";
+  };
+
   const getOfferStatus = () => {
     const isPending = isAccepted === null;
     const isRejected = isAccepted;
@@ -43,78 +77,139 @@ function OfferItem({
       ? "Accepted"
       : "Unknown";
   };
+
+  const getStatusColor = () => {
+    const status = getOfferStatus();
+    if (status === "Accepted") return "success";
+    if (status === "Pending") return "warning";
+    if (status === "Rejected" || status === "Expired") return "danger";
+    return "neutral";
+  };
+
   return (
-    <Card size="sm" variant="soft" sx={{ borderRadius: "lg" }}>
-      <Card size="sm" variant="soft" sx={{ padding: 0 }}>
-        <CardContent orientation="horizontal">
-          <Box>
-            <Avatar
-              src={resolvePhotoSrc(esco.profilePhoto)}
-              sx={{ marginRight: 1, flexGrow: 1 }}
-            >
-              {esco.name}
-            </Avatar>
-          </Box>
-          <Link
-            component={RouterLink}
-            to={`/escos/${esco.id}`}
-            overlay
-            underline="none"
-            color="neutral"
-            sx={{
-              display: "block",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              fontWeight: "bold",
-              alignSelf: "center",
-              marginRight: "auto",
-              maxWidth: 1,
-            }}
-            level="body-sm"
+    <Card
+      variant="outlined"
+      sx={{
+        borderRadius: "xl",
+        boxShadow: "sm",
+        overflow: "hidden",
+        position: "relative",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "&:hover": {
+          transform: "translateY(-6px)",
+          boxShadow: "md",
+          borderColor: "primary.200",
+        },
+        bgcolor: "background.surface",
+        p: 0,
+      }}
+    >
+      {/* Hero Image with overlays */}
+      <Box sx={{ position: "relative", width: "100%" }}>
+        <AspectRatio ratio="16/9">
+          <img src={resolvePhotoSrc(product.coverPhoto)} alt={product.name} />
+        </AspectRatio>
+
+        {/* Floating Status Badge */}
+        <Box sx={{ position: "absolute", top: 8, left: 8, zIndex: 10 }}>
+          <Chip
+            variant="solid"
+            color={getStatusColor()}
+            size="sm"
+            sx={{ fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}
           >
-            {toTitleCase(esco.name)}
-          </Link>
-        </CardContent>
-      </Card>
-      <AspectRatio>
-        <img src={resolvePhotoSrc(product.coverPhoto)} alt={product.name} />
-      </AspectRatio>
-      <Box sx={{ position: "relative" }}>
-        <Chip
-          variant="soft"
-          color="warning"
-          size="sm"
+            {getOfferStatus()}
+          </Chip>
+        </Box>
+
+        {/* Glassmorphic ESCO Capsule */}
+        <Box
           sx={{
-            transform: "translateY(-65%)",
             position: "absolute",
+            bottom: 8,
+            left: 8,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            bgcolor: "rgba(255,255,255,0.82)",
+            backdropFilter: "blur(6px)",
+            py: 0.5,
+            px: 1.5,
+            borderRadius: "full",
+            boxShadow: "sm",
+            zIndex: 5,
+            maxWidth: "calc(100% - 16px)",
           }}
         >
-          {getOfferStatus()}
-        </Chip>
+          <Avatar size="sm" src={resolvePhotoSrc(esco.profilePhoto)} sx={{ width: 20, height: 20 }}>
+            {esco.name[0]}
+          </Avatar>
+          <Typography
+            level="body-xs"
+            textColor="text.primary"
+            sx={{ fontWeight: "bold", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+          >
+            {toTitleCase(esco.name)}
+          </Typography>
+        </Box>
       </Box>
-      <Typography
-        component={RouterLink}
-        to={`/products/${product.id}`}
-        sx={{ textDecoration: "none", fontSize: "sm", marginTop: 1 }}
-      >
-        {toTitleCase(product.name)}
-      </Typography>
-      <Card size="sm">
-        <CardContent orientation="horizontal">
-          <Avatar size="sm" src={resolvePhotoSrc(farmer.profilePhoto)}></Avatar>
-          <Typography level="body-sm" sx={{ alignSelf: "center" }}>
-            {toTitleCase(getFarmerFullName(farmer))}
+
+      <CardContent sx={{ p: 2 }}>
+        {/* Product Name */}
+        <Link
+          component={RouterLink}
+          to={`/products/${product.id}`}
+          underline="none"
+          textColor="text.primary"
+          sx={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            fontWeight: "bold",
+            fontSize: "md",
+            lineHeight: "1.3",
+            mb: 1.5,
+            "&:hover": { color: "primary.600" },
+          }}
+        >
+          {toTitleCase(product.name)}
+        </Link>
+
+        {/* Recipient Row */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            p: 1,
+            borderRadius: "md",
+            bgcolor: "background.level1",
+          }}
+        >
+          <Avatar size="sm" src={resolvePhotoSrc(recipient?.profilePhoto)}>
+            {getRecipientName()[0]}
+          </Avatar>
+          <Typography
+            level="body-xs"
+            textColor="text.secondary"
+            fontWeight="bold"
+            sx={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+          >
+            {toTitleCase(getRecipientName())}
           </Typography>
           <IconButton
-            sx={{ marginLeft: "auto" }}
+            size="sm"
+            variant="soft"
+            color="neutral"
             component={RouterLink}
-            to={`/farmers/${farmer.id}`}
+            to={getUrl()}
+            sx={{ borderRadius: "50%", minWidth: 28, minHeight: 28 }}
           >
-            <ChevronRightOutlinedIcon />
+            <ChevronRightOutlinedIcon sx={{ fontSize: "1rem" }} />
           </IconButton>
-        </CardContent>
-      </Card>
+        </Box>
+      </CardContent>
     </Card>
   );
 }
@@ -124,6 +219,7 @@ export function FarmerOfferList() {
   const [page, setPage] = useState(1);
   const {
     data: offers,
+    isLoading,
     isFetching,
     error,
   } = useGetFarmerOffersQuery({ farmerId, page });
@@ -131,6 +227,7 @@ export function FarmerOfferList() {
   return (
     <OfferList
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       offers={offers}
       onSelectPage={setPage}
@@ -143,6 +240,7 @@ export function GroupOfferList() {
   const [page, setPage] = useState(1);
   const {
     data: offers,
+    isLoading,
     isFetching,
     error,
   } = useGetGroupOffersQuery({ groupId, page });
@@ -150,6 +248,7 @@ export function GroupOfferList() {
   return (
     <OfferList
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       offers={offers}
       onSelectPage={setPage}
@@ -161,6 +260,7 @@ export function AgroProcessorOfferList() {
   const [page, setPage] = useState(1);
   const {
     data: offers,
+    isLoading,
     isFetching,
     error,
   } = useGetAgroProcessorOffersQuery({ agroProcessorId, page });
@@ -168,6 +268,7 @@ export function AgroProcessorOfferList() {
   return (
     <OfferList
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       offers={offers}
       onSelectPage={setPage}
@@ -180,6 +281,7 @@ export function EscoOfferList() {
   const [page, setPage] = useState(1);
   const {
     data: offers,
+    isLoading,
     isFetching,
     error,
   } = useGetEscoOffersQuery({ escoId, page });
@@ -188,6 +290,7 @@ export function EscoOfferList() {
     <OfferList
       offers={offers}
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       onSelectPage={setPage}
     />
@@ -197,10 +300,11 @@ export function EscoOfferList() {
 function OfferList({
   offers,
   error = null,
+  isLoading = false,
   isFetching = false,
   onSelectPage = (page) => page,
 }) {
-  if (isFetching) {
+  if (isLoading) {
     return <Loading />;
   }
   if (!!error) {
@@ -212,6 +316,7 @@ function OfferList({
       renderItem={(item) => <OfferItem offer={item} />}
       renderEmpty={() => <Empty>No offers found</Empty>}
       onSelectPage={onSelectPage}
+      isFetching={isFetching}
     />
   );
 }

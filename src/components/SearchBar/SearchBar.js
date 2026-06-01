@@ -3,13 +3,11 @@ import {
   IconButton,
   Input,
   Stack,
-  AspectRatio,
   Typography,
   MenuList,
-  Card,
-  CardContent,
+  MenuItem,
   Divider,
-  Link,
+  Avatar,
 } from "@mui/joy";
 import useDebouncedInput from "../../hooks/useDebouncedInput";
 import { useEffect, useReducer, useRef, useState } from "react";
@@ -17,17 +15,18 @@ import { styled } from "@mui/joy/styles";
 import { ClickAwayListener, Popper } from "@mui/material";
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
+import ArrowForwardIosOutlinedIcon from "@mui/icons-material/ArrowForwardIosOutlined";
 import { useLazyGetProductsQuery } from "../../services/product";
 import { useLazyGetFarmersQuery } from "../../services/farmer";
 import { useLazyGetEscosQuery } from "../../services/esco";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import Loading from "../common/utils/Loading";
 import toTitleCase from "../../utils/toTitleCase";
-import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
 import isEmpty from "../../utils/isEmpty";
 
 const Popup = styled(Popper)({
-  zIndex: 1000,
+  zIndex: 9999,
 });
 
 const PRODUCTS = "products";
@@ -38,55 +37,106 @@ const SEARCH_BASE_URLS = {
   [FARMERS]: "/farmers",
   [ESCOS]: "/escos",
 };
+
+// Elegant search categories map helper
+const CATEGORY_META = {
+  [PRODUCTS]: { label: "Products", color: "success" },
+  [FARMERS]: { label: "Farmers", color: "success" },
+  [ESCOS]: { label: "Escos", color: "primary" },
+};
+
 function SearchResults({
   searchResults,
   loading,
   onSearchResultClick,
   searchQuery,
 }) {
+  const isAllEmpty = Object.values(searchResults).every(arr => arr.length === 0);
+
+  if (isAllEmpty && !Object.values(loading).some(Boolean) && searchQuery.trim() !== "") {
+    return (
+      <Box sx={{ py: 4, px: 2, textAlign: "center" }}>
+        <SearchOffOutlinedIcon sx={{ fontSize: "2rem", color: "neutral.400", mb: 1 }} />
+        <Typography level="title-sm" sx={{ fontWeight: "700" }}>No matches found</Typography>
+        <Typography level="body-xs" color="neutral" sx={{ mt: 0.5 }}>
+          Try checking spelling or type another keyword
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <>
       {Object.entries(searchResults).map(([key, results], index) => {
+        const meta = CATEGORY_META[key] || { label: toTitleCase(key), color: "neutral" };
+        
         return (
-          <Box key={index}>
-            <Typography level="body-sm">{toTitleCase(key)}</Typography>
-            <Stack direction="column">
-              <Card sx={{ marginBottom: 1 }} variant="soft">
-                <CardContent orientation="horizontal">
-                  <AspectRatio sx={{ width: "70px" }}>
-                    <Box>
-                      <SearchOutlinedIcon />
-                    </Box>
-                  </AspectRatio>
-                  <Link
-                    component={RouterLink}
-                    to={`${SEARCH_BASE_URLS[key]}?search=${searchQuery}`}
-                    underline="none"
-                    overlay
-                    onClick={onSearchResultClick}
-                  >
-                    <Typography level="body-sm">{`Search in all ${toTitleCase(
-                      key
-                    )}`}</Typography>
-                  </Link>
-                </CardContent>
-              </Card>
-              {loading[key] && <Loading size="sm" />}
-              {results.map((result, index) => (
+          <Box key={index} sx={{ mb: 2, "&:last-child": { mb: 0 } }}>
+            {/* Category header label */}
+            <Typography
+              level="body-xs"
+              sx={{
+                fontWeight: "800",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                color: "text.tertiary",
+                px: 1.5,
+                mb: 1,
+              }}
+            >
+              {meta.label}
+            </Typography>
+
+            <Stack spacing={0.75}>
+              {/* Premium Search in all button */}
+              <MenuItem
+                component={RouterLink}
+                to={`${SEARCH_BASE_URLS[key]}?search=${searchQuery}`}
+                onClick={onSearchResultClick}
+                sx={{
+                  borderRadius: "lg",
+                  py: 1,
+                  px: 1.5,
+                  bgcolor: "rgba(46, 125, 50, 0.04)",
+                  border: "1px dashed rgba(46, 125, 50, 0.2)",
+                  transition: "all 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  "&:hover": {
+                    bgcolor: "rgba(46, 125, 50, 0.08)",
+                    border: "1px dashed rgba(46, 125, 50, 0.4)",
+                  },
+                }}
+              >
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  <SearchOutlinedIcon sx={{ fontSize: "1.1rem", color: "success.500" }} />
+                  <Typography level="body-sm" sx={{ fontWeight: "600", color: "success.600" }}>
+                    Search in all {toTitleCase(key)}
+                  </Typography>
+                </Stack>
+                <ArrowForwardIosOutlinedIcon sx={{ fontSize: "0.75rem", color: "success.500" }} />
+              </MenuItem>
+
+              {loading[key] && (
+                <Box sx={{ py: 1, display: "flex", justifyContent: "center" }}>
+                  <Loading size="sm" />
+                </Box>
+              )}
+
+              {/* Styled results rows */}
+              {results.map((result, idx) => (
                 <SearchResult
-                  key={index}
-                  variant="soft"
-                  sx={{
-                    marginBottom: index !== results.length - 1 ? 1 : 0,
-                  }}
+                  key={idx}
                   type={key}
                   onClick={onSearchResultClick}
                   {...result}
                 />
               ))}
             </Stack>
+
             {index < Object.keys(searchResults).length - 1 && (
-              <Divider sx={{ marginTop: 1, marginBottom: 2 }} />
+              <Divider sx={{ mt: 2, mb: 1 }} />
             )}
           </Box>
         );
@@ -95,30 +145,52 @@ function SearchResults({
   );
 }
 
-function SearchResult({ name, photo, to, sx, onClick }) {
+function SearchResult({ name, photo, to, onClick }) {
   return (
-    <Card variant="soft" sx={sx}>
-      <CardContent orientation="horizontal">
-        <AspectRatio sx={{ width: 70, flex: "0 0 auto" }}>
-          <img src={resolvePhotoSrc(photo)} alt={name} />
-        </AspectRatio>
-        <Link
-          sx={{
-            display: "inline-block",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-          component={RouterLink}
-          to={to}
-          underline="none"
-          overlay
-          onClick={onClick}
-        >
-          <Typography level="body-sm">{name}</Typography>
-        </Link>
-      </CardContent>
-    </Card>
+    <MenuItem
+      component={RouterLink}
+      to={to}
+      onClick={onClick}
+      sx={{
+        borderRadius: "lg",
+        py: 1,
+        px: 1.5,
+        transition: "all 0.2s",
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        "&:hover": {
+          bgcolor: "rgba(0, 0, 0, 0.04)",
+          transform: "translateX(2px)",
+        },
+      }}
+    >
+      <Avatar
+        size="sm"
+        src={resolvePhotoSrc(photo)}
+        alt={name}
+        sx={{
+          width: 32,
+          height: 32,
+          border: "1px solid rgba(0,0,0,0.06)",
+          boxShadow: "xs",
+        }}
+      >
+        {name[0]}
+      </Avatar>
+      <Typography
+        level="body-sm"
+        sx={{
+          fontWeight: "600",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          flex: 1,
+        }}
+      >
+        {name}
+      </Typography>
+    </MenuItem>
   );
 }
 
@@ -169,6 +241,7 @@ export default function SearchBar({ containersx = {}, ...props }) {
     setSearchParams(searchParams);
     handleResultsPopupClose();
   }
+  
   function handleChange({ target }) {
     setSearchQuery(target.value);
     setIsOpen(target.value.trim() !== "");
@@ -208,18 +281,20 @@ export default function SearchBar({ containersx = {}, ...props }) {
         dispatch({ type: ESCOS, payload: { items: data.slice(0, 4) } });
       });
   }, [debouncedSearchQuery, fetchProducts, fetchFarmers, fetchEscos]);
+
   return (
     <ClickAwayListener onClickAway={handleResultsPopupClose}>
-      <Box sx={containersx}>
+      <Box sx={{ ...containersx, position: "relative" }}>
         <Input
           ref={inputRef}
           onChange={handleChange}
           onFocus={handleFocus}
-          placeholder="Search farmers, escos, products"
+          placeholder="Search tech products, farmers, escos..."
           value={unDebouncedSearchQuery}
+          startDecorator={<SearchOutlinedIcon sx={{ color: "text.tertiary" }} />}
           endDecorator={
             unDebouncedSearchQuery !== "" && (
-              <IconButton size="sm" onClick={handleSearchClear}>
+              <IconButton size="sm" onClick={handleSearchClear} variant="plain" color="neutral">
                 <SearchOffOutlinedIcon />
               </IconButton>
             )
@@ -230,23 +305,42 @@ export default function SearchBar({ containersx = {}, ...props }) {
         <Popup
           open={isOpen}
           anchorEl={inputRef.current}
-          disablePortal={true}
+          disablePortal={false}
+          placement="bottom-start"
           modifiers={[
             {
               name: "offset",
               options: {
-                offset: [0, 4],
+                offset: [0, 8],
               },
             },
           ]}
+          style={{
+            width: inputRef.current ? inputRef.current.clientWidth : 350,
+          }}
         >
           <MenuList
             sx={{
-              padding: 1,
-              maxHeight: 350,
+              padding: 1.5,
+              maxHeight: 380,
               overflowY: "auto",
               overflowX: "hidden",
-              width: 290,
+              width: "100%",
+              borderRadius: "xl",
+              bgcolor: "rgba(255, 255, 255, 0.98)",
+              backdropFilter: "blur(20px)",
+              boxShadow: "0 10px 40px rgba(0, 0, 0, 0.08)",
+              border: "1px solid rgba(0, 0, 0, 0.08)",
+              "&::-webkit-scrollbar": {
+                width: 6,
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "transparent",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "rgba(0, 0, 0, 0.1)",
+                borderRadius: 4,
+              },
             }}
           >
             <SearchResults

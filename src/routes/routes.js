@@ -8,6 +8,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Main from "../components/Main/Main";
 import Login from "../components/Login/Login";
 import SuperAdminRequired from "../components/SuperAdminRequired/SuperAdminRequired";
+import Settings from "../components/Settings/Settings";
 import { Suspense } from "react";
 import Loading from "../components/common/utils/Loading";
 
@@ -237,6 +238,10 @@ const routes = [
           </Suspense>
         ),
       },
+      {
+        path: "settings",
+        element: <Settings />,
+      },
     ],
   },
   {
@@ -254,6 +259,6 @@ const routes = [
 ];
 
 const router = createBrowserRouter([...routes], {
-  basename: "/farmersescos-web-portal/",
+  basename: "/",
 });
 export default router;

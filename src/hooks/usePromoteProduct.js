@@ -1,13 +1,13 @@
 import { toast } from "react-toastify";
 import parseError from "../components/common/utils/parse-error";
 import { usePromoteProductMutation } from "../services/product";
-import GROUP_RECIPIENT from "../validation-schemas/product/PromotionSchema";
+import { GROUP_RECIPIENT } from "../validation-schemas/product/PromotionSchema";
 
 export default function usePromoteProduct() {
   const [_promoteProduct, { isLoading }] = usePromoteProductMutation();
   async function promoteProduct(productId, body) {
-    const { recipient, group } = body;
     const bodyCopy = structuredClone(body);
+    const { recipient, group } = bodyCopy;
     if (recipient === GROUP_RECIPIENT) {
       bodyCopy["groupId"] = group.at(0).id;
     }

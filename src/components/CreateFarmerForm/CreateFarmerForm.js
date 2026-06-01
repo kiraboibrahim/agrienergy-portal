@@ -10,6 +10,7 @@ import {
   FarmerLocationSchema,
   FarmDetailsSchema,
 } from "../../validation-schemas/farmer/FarmerProfileSchema";
+import UsernameInput from "../common/fields/UsernameInput";
 export default function CreateFarmerForm() {
   const [createFarmer] = useCreateFarmer();
 
@@ -39,7 +40,7 @@ export default function CreateFarmerForm() {
             required
           />
         </Stack>
-        <TextInput
+        <UsernameInput
           name="phoneNumber"
           type="tel"
           label="Phone number"

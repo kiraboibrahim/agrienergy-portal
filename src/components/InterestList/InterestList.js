@@ -19,6 +19,7 @@ export function FarmerInterestList() {
   const {
     data: interests,
     error,
+    isLoading,
     isFetching,
   } = useGetFarmerFavoriteProductsQuery({ farmerId, page });
 
@@ -26,6 +27,7 @@ export function FarmerInterestList() {
     <InterestList
       interests={interests}
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       onSelectPage={setPage}
     />
@@ -38,6 +40,7 @@ export function GroupInterestList() {
   const {
     data: interests,
     error,
+    isLoading,
     isFetching,
   } = useGetGroupFavoriteProductsQuery({ groupId, page });
 
@@ -45,6 +48,7 @@ export function GroupInterestList() {
     <InterestList
       interests={interests}
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       onSelectPage={setPage}
     />
@@ -56,6 +60,7 @@ export function AgroProcessorInterestList() {
   const {
     data: interests,
     error,
+    isLoading,
     isFetching,
   } = useGetAgroProcessorFavoritesQuery({ agroProcessorId, page });
 
@@ -63,6 +68,7 @@ export function AgroProcessorInterestList() {
     <InterestList
       interests={interests}
       error={error}
+      isLoading={isLoading}
       isFetching={isFetching}
       onSelectPage={setPage}
     />
@@ -72,10 +78,11 @@ export function AgroProcessorInterestList() {
 function InterestList({
   interests,
   error = null,
+  isLoading = false,
   isFetching = false,
   onSelectPage = (page) => page,
 }) {
-  if (isFetching) {
+  if (isLoading) {
     return <Loading />;
   }
   if (!!error) {
@@ -88,6 +95,7 @@ function InterestList({
         renderItem={(item) => <InterestItem interest={item} />}
         renderEmpty={() => <Empty>No interests found</Empty>}
         onSelectPage={onSelectPage}
+        isFetching={isFetching}
       />
     </>
   );
