@@ -27,9 +27,11 @@ import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import toTitleCase from "../../utils/toTitleCase";
 import useDeleteFarmer from "../../hooks/useDeleteFarmer";
 import getFarmerFullName from "../../utils/getFarmerFullName";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 function FarmerItem({ farmer }) {
   const [deleteFarmer, isDeletingFarmer] = useDeleteFarmer();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   return (
     <Card
       variant="outlined"
@@ -82,7 +84,7 @@ function FarmerItem({ farmer }) {
               <MoreVertIcon />
             </MenuButton>
             <Menu placement="bottom-end">
-              <MenuItem variant="soft" color="danger" onClick={async () => await deleteFarmer(farmer.id)}>
+              <MenuItem variant="soft" color="danger" onClick={() => setIsConfirmModalOpen(true)}>
                 <Typography
                   level="body-sm"
                   startDecorator={<DeleteOutlinedIcon color="danger" />}
@@ -159,6 +161,17 @@ function FarmerItem({ farmer }) {
           </Box>
         </Box>
       </CardContent>
+      <ConfirmationModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmModalOpen(false);
+          await deleteFarmer(farmer.id);
+        }}
+        isLoading={isDeletingFarmer}
+        title="Delete Farmer Profile"
+        message={`Are you sure you want to delete the profile of ${getFarmerFullName(farmer)}? This action cannot be undone.`}
+      />
     </Card>
   );
 }

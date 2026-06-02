@@ -23,6 +23,7 @@ import DirtyFormik from "../common/fields/DirtyFormik";
 import { useState } from "react";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import CSVChippedSelect from "../common/fields/CSVChippedSelect";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 import { ANIMALS, CROPS } from "../../constants";
 import useDeleteFarmer from "../../hooks/useDeleteFarmer";
 import useUpdateFarmer from "../../hooks/useUpdateFarmer";
@@ -38,6 +39,7 @@ export default function FarmerProfile() {
   const { data: farmer, error, isFetching } = useGetFarmerQuery(farmerId);
   const [deleteFarmer, isDeletingFarmer] = useDeleteFarmer();
   const [updateFarmer, isUpdatingFarmer] = useUpdateFarmer();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   if (!!error) {
     return <Error error={error} />;
@@ -130,7 +132,7 @@ export default function FarmerProfile() {
                 disabled={isDeletingFarmer}
                 loading={isDeletingFarmer}
                 startDecorator={<DeleteOutlinedIcon />}
-                onClick={async () => await deleteFarmer(farmerId)}
+                onClick={() => setIsConfirmModalOpen(true)}
                 sx={{ fontWeight: "bold" }}
               >
                 Delete Profile
@@ -361,6 +363,17 @@ export default function FarmerProfile() {
             </Stack>
           </Form>
         </DirtyFormik>
+        <ConfirmationModal
+          open={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={async () => {
+            setIsConfirmModalOpen(false);
+            await deleteFarmer(farmerId);
+          }}
+          isLoading={isDeletingFarmer}
+          title="Delete Farmer Profile"
+          message={`Are you sure you want to delete the profile of ${getFarmerFullName(farmer)}? This action cannot be undone.`}
+        />
       </Box>
     );
   }

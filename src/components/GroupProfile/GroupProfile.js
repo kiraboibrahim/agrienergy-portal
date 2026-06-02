@@ -33,12 +33,14 @@ import Textarea from "../common/fields/Textarea";
 import useUpdateGroup from "../../hooks/useUpdateGroup";
 import useDeleteGroup from "../../hooks/useDeleteGroup";
 import AgroProcessorSelect from "../common/fields/AgroProcessorSelect";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 export default function GroupProfile() {
   const { id: groupId } = useParams();
   const [isDirtyProfile, setIsDirtyProfile] = useState(false);
   const [deleteGroup, isDeletingGroup] = useDeleteGroup();
   const [updateGroup, isUpdatingGroup] = useUpdateGroup();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const {
     data: group,
@@ -145,9 +147,7 @@ export default function GroupProfile() {
                 disabled={isDeletingGroup}
                 loading={isDeletingGroup}
                 startDecorator={<DeleteOutlinedIcon />}
-                onClick={async () => {
-                  await deleteGroup(groupId);
-                }}
+                onClick={() => setIsConfirmModalOpen(true)}
                 sx={{ fontWeight: "bold" }}
               >
                 Delete Group
@@ -334,6 +334,17 @@ export default function GroupProfile() {
             </Stack>
           </Form>
         </DirtyFormik>
+        <ConfirmationModal
+          open={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={async () => {
+            setIsConfirmModalOpen(false);
+            await deleteGroup(groupId);
+          }}
+          isLoading={isDeletingGroup}
+          title="Delete Group"
+          message={`Are you sure you want to delete the group "${group.name}"? This action cannot be undone.`}
+        />
       </Box>
     );
   }

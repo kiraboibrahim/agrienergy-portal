@@ -27,10 +27,12 @@ import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import toTitleCase from "../../utils/toTitleCase";
 import { useGetAgroProcessorsQuery } from "../../services/agroProcessor";
 import useDeleteAgroProcessor from "../../hooks/useDeleteAgroProcessor";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 function AgroProcessorItem({ agroProcessor }) {
   const [deleteAgroProcessor, isDeletingAgroProcessor] =
     useDeleteAgroProcessor();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   return (
     <Card
       variant="outlined"
@@ -83,7 +85,7 @@ function AgroProcessorItem({ agroProcessor }) {
               <MoreVertIcon />
             </MenuButton>
             <Menu placement="bottom-end">
-              <MenuItem variant="soft" color="danger" onClick={async () => await deleteAgroProcessor(agroProcessor.id)}>
+              <MenuItem variant="soft" color="danger" onClick={() => setIsConfirmModalOpen(true)}>
                 <Typography
                   level="body-sm"
                   startDecorator={<DeleteOutlinedIcon color="danger" />}
@@ -161,6 +163,17 @@ function AgroProcessorItem({ agroProcessor }) {
           </Box>
         </Box>
       </CardContent>
+      <ConfirmationModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmModalOpen(false);
+          await deleteAgroProcessor(agroProcessor.id);
+        }}
+        isLoading={isDeletingAgroProcessor}
+        title="Delete Agro Processor"
+        message={`Are you sure you want to delete "${agroProcessor.name}"? This action cannot be undone.`}
+      />
     </Card>
   );
 }

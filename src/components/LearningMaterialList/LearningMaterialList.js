@@ -8,11 +8,14 @@ import { useLearningModalContext } from "../ProductDetail/CreateLearningMaterial
 import { useDeleteLearningMaterialMutation } from "../../services/product";
 import { toast } from "react-toastify";
 import parseError from "../common/utils/parse-error";
+import { useState } from "react";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 function LearningMaterial({ item, sx = [], ...props }) {
   const [_deleteLearningMaterial, { isLoading }] =
     useDeleteLearningMaterialMutation();
   const { id, videoUrl, title } = item;
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   async function deleteLearningMaterial() {
     const { unwrap } = _deleteLearningMaterial(id);
     try {
@@ -49,7 +52,7 @@ function LearningMaterial({ item, sx = [], ...props }) {
           disabled={isLoading}
           loading={isLoading}
           loadingPosition="start"
-          onClick={async () => await deleteLearningMaterial()}
+          onClick={() => setIsConfirmModalOpen(true)}
         >
           Delete
         </Button>
@@ -57,6 +60,17 @@ function LearningMaterial({ item, sx = [], ...props }) {
       <CardContent>
         <YouTubePlayer url={videoUrl} width="100%" height={200} />
       </CardContent>
+      <ConfirmationModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmModalOpen(false);
+          await deleteLearningMaterial();
+        }}
+        isLoading={isLoading}
+        title="Delete Learning Material"
+        message={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
+      />
     </Card>
   );
 }

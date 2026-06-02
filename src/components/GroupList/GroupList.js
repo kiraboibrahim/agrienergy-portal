@@ -27,9 +27,11 @@ import Error from "../common/utils/Error";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import Loading from "../common/utils/Loading";
 import { useState } from "react";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 function GroupItem({ group }) {
   const [deleteGroup, isDeletingGroup] = useDeleteGroup();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   return (
     <Card
       variant="outlined"
@@ -82,7 +84,7 @@ function GroupItem({ group }) {
               <MoreVertIcon />
             </MenuButton>
             <Menu placement="bottom-end">
-              <MenuItem variant="soft" color="danger" onClick={async () => await deleteGroup(group.id)}>
+              <MenuItem variant="soft" color="danger" onClick={() => setIsConfirmModalOpen(true)}>
                 <Typography
                   level="body-sm"
                   startDecorator={<DeleteOutlinedIcon color="danger" />}
@@ -160,6 +162,17 @@ function GroupItem({ group }) {
           </Box>
         </Box>
       </CardContent>
+      <ConfirmationModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmModalOpen(false);
+          await deleteGroup(group.id);
+        }}
+        isLoading={isDeletingGroup}
+        title="Delete Group"
+        message={`Are you sure you want to delete the group "${group.name}"? This action cannot be undone.`}
+      />
     </Card>
   );
 }

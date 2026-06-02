@@ -31,8 +31,12 @@ import Error from "../common/utils/Error";
 import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
 import toTitleCase from "../../utils/toTitleCase";
+import useDeleteProduct from "../../hooks/useDeleteProduct";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 export function ProductItem({ product }) {
+  const [deleteProduct, isDeletingProduct] = useDeleteProduct();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   return (
     <Card
       variant="outlined"
@@ -129,7 +133,7 @@ export function ProductItem({ product }) {
                   Promote
                 </Typography>
               </MenuItem>
-              <MenuItem variant="soft" color="danger">
+              <MenuItem variant="soft" color="danger" onClick={() => setIsConfirmModalOpen(true)}>
                 <Typography
                   level="body-sm"
                   startDecorator={<DeleteOutlinedIcon color="danger" />}
@@ -183,6 +187,17 @@ export function ProductItem({ product }) {
           {toTitleCase(product.name)}
         </Link>
       </CardContent>
+      <ConfirmationModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmModalOpen(false);
+          await deleteProduct(product.id);
+        }}
+        isLoading={isDeletingProduct}
+        title="Delete Product"
+        message={`Are you sure you want to delete "${product.name}"? This action cannot be undone.`}
+      />
     </Card>
   );
 }

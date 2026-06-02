@@ -29,12 +29,14 @@ import resolvePhotoSrc from "../../utils/resolve-photo-src";
 import useDeleteEsco from "../../hooks/useDeleteEsco";
 import useUpdateEsco from "../../hooks/useUpdateEsco";
 import Error from "../common/utils/Error";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 export default function EscoProfile() {
   const { id: escoId } = useParams();
   const [isDirtyProfile, setIsDirtyProfile] = useState(false);
   const [deleteEsco, isDeletingEsco] = useDeleteEsco();
   const [updateEsco, isUpdatingEsco] = useUpdateEsco();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const {
     data: esco,
     error: escoFetchError,
@@ -125,9 +127,7 @@ export default function EscoProfile() {
                 disabled={isDeletingEsco}
                 loading={isDeletingEsco}
                 startDecorator={<DeleteOutlinedIcon />}
-                onClick={async () => {
-                  await deleteEsco(escoId);
-                }}
+                onClick={() => setIsConfirmModalOpen(true)}
                 sx={{ fontWeight: "bold" }}
               >
                 Delete ESCO
@@ -319,6 +319,17 @@ export default function EscoProfile() {
             </Stack>
           </Form>
         </DirtyFormik>
+        <ConfirmationModal
+          open={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={async () => {
+            setIsConfirmModalOpen(false);
+            await deleteEsco(escoId);
+          }}
+          isLoading={isDeletingEsco}
+          title="Delete ESCO"
+          message={`Are you sure you want to delete the ESCO "${esco.name}"? This action cannot be undone.`}
+        />
       </Box>
     );
   }

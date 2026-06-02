@@ -30,6 +30,7 @@ import ProductForm from "./ProductForm";
 import PromoteProductModal, {
   usePromoteProductModalContext,
 } from "./PromoteProductModal";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import LearningMaterialsList from "../LearningMaterialList/LearningMaterialList";
 import CreateLearningMaterialModal, {
@@ -43,6 +44,7 @@ export default function ProductDetail() {
   const [, openLearningModal] = useLearningModalContext();
   const [deleteProduct, isDeletingProduct] = useDeleteProduct();
   const [showEditForm, setShowEditForm] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const {
     data: product,
@@ -230,8 +232,8 @@ export default function ProductDetail() {
                   loading={isDeletingProduct}
                   loadingPosition="start"
                   startDecorator={<DeleteOutlinedIcon />}
-                  onClick={async () => {
-                    await deleteProduct(productId);
+                  onClick={() => {
+                    setIsConfirmModalOpen(true);
                   }}
                   sx={{ fontWeight: "700" }}
                 >
@@ -387,6 +389,17 @@ export default function ProductDetail() {
 
         <PromoteProductModal product={product} />
         <CreateLearningMaterialModal product={product} />
+        <ConfirmationModal
+          open={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={async () => {
+            setIsConfirmModalOpen(false);
+            await deleteProduct(productId);
+          }}
+          isLoading={isDeletingProduct}
+          title="Delete Product"
+          message={`Are you sure you want to delete "${product.name}"? This action cannot be undone.`}
+        />
       </Box>
     );
   }

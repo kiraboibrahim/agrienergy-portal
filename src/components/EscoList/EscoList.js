@@ -27,9 +27,11 @@ import Empty from "../common/utils/Empty";
 import useDeleteEsco from "../../hooks/useDeleteEsco";
 import toTitleCase from "../../utils/toTitleCase";
 import PaginatedGridList from "../common/layouts/PaginatedGridList";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 
 function EscoItem({ esco }) {
   const [deleteEsco, isDeletingEsco] = useDeleteEsco();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   return (
     <Card
       variant="outlined"
@@ -82,7 +84,7 @@ function EscoItem({ esco }) {
               <MoreVertIcon />
             </MenuButton>
             <Menu placement="bottom-end">
-              <MenuItem variant="soft" color="danger" onClick={async () => await deleteEsco(esco.id)}>
+              <MenuItem variant="soft" color="danger" onClick={() => setIsConfirmModalOpen(true)}>
                 <Typography
                   level="body-sm"
                   startDecorator={<DeleteOutlinedIcon color="danger" />}
@@ -160,6 +162,17 @@ function EscoItem({ esco }) {
           </Box>
         </Box>
       </CardContent>
+      <ConfirmationModal
+        open={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={async () => {
+          setIsConfirmModalOpen(false);
+          await deleteEsco(esco.id);
+        }}
+        isLoading={isDeletingEsco}
+        title="Delete ESCO"
+        message={`Are you sure you want to delete the ESCO "${esco.name}"? This action cannot be undone.`}
+      />
     </Card>
   );
 }

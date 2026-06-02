@@ -27,6 +27,7 @@ import useUpdateAgroProcessor from "../../hooks/useUpdateAgroProcessor";
 import difference from "../../utils/difference";
 import toTitleCase from "../../utils/toTitleCase";
 import Error from "../common/utils/Error";
+import ConfirmationModal from "../common/utils/ConfirmationModal";
 import AgroProcessorProfileSchema from "../../validation-schemas/agroProcessor/AgroProcessorProfileSchema";
 import { useGetAgroProcessorQuery } from "../../services/agroProcessor";
 
@@ -42,6 +43,7 @@ export default function AgroProcessorProfile() {
     useDeleteAgroProcessor();
   const [updateAgroProcessor, isUpdatingAgroProcessor] =
     useUpdateAgroProcessor();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   if (!!error) {
     return <Error error={error} />;
@@ -134,7 +136,7 @@ export default function AgroProcessorProfile() {
                 disabled={isDeletingAgroProcessor}
                 loading={isDeletingAgroProcessor}
                 startDecorator={<DeleteOutlinedIcon />}
-                onClick={async () => await deleteAgroProcessor(agroProcessorId)}
+                onClick={() => setIsConfirmModalOpen(true)}
                 sx={{ fontWeight: "bold" }}
               >
                 Delete Profile
@@ -313,6 +315,17 @@ export default function AgroProcessorProfile() {
             </Stack>
           </Form>
         </DirtyFormik>
+        <ConfirmationModal
+          open={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={async () => {
+            setIsConfirmModalOpen(false);
+            await deleteAgroProcessor(agroProcessorId);
+          }}
+          isLoading={isDeletingAgroProcessor}
+          title="Delete Agro Processor"
+          message={`Are you sure you want to delete the profile of "${agroProcessor.name}"? This action cannot be undone.`}
+        />
       </Box>
     );
   }
